@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a single financial transaction (income or expense).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the transaction."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount of the transaction (positive for income, negative for expense)."
+        },
+        "date": {
+          "type": "string",
+          "description": "The date of the transaction.",
+          "format": "date-time"
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to Category. (Relationship: Category 1:N Transaction)"
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the transaction."
+        }
+      },
+      "required": [
+        "amount",
+        "date",
+        "categoryId",
+        "description"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a category for grouping transactions (e.g., 'Food', 'Rent', 'Salary').",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the category."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the category."
+        },
+        "isIncome": {
+          "type": "boolean",
+          "description": "Indicates whether the category is for income (true) or expense (false)."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "isIncome"
+      ]
+    },
+    "Budget": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Budget",
+      "type": "object",
+      "description": "Represents a monthly budget limit for a specific category.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the budget."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "The ID of the category this budget applies to."
+        },
+        "month": {
+          "type": "string",
+          "description": "The month for which the budget is set, in YYYY-MM format."
+        },
+        "limit": {
+          "type": "number",
+          "description": "The budget limit for the category in that month."
+        }
+      },
+      "required": [
+        "categoryId",
+        "month",
+        "limit"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": {
+      "/users/{userId}/categories/{categoryId}": {
+        "schema": {
+          "$ref": "#/entities/Category"
+        },
+        "description": "Stores categories owned by a specific user."
+      },
+      "/users/{userId}/budgets/{budgetId}": {
+        "schema": {
+          "$ref": "#/entities/Budget"
+        },
+        "description": "Stores budgets owned by a specific user."
+      },
+      "/users/{userId}/transactions/{transactionId}": {
+        "schema": {
+          "$ref": "#/entities/Transaction"
+        },
+        "description": "Stores transactions owned by a specific user."
+      }
+    }
+  }
+}

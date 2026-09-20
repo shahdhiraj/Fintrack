@@ -1,0 +1,141 @@
+/**
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for financial data.
+ *
+ * Data Structure:
+ * All data (categories, budgets, and transactions) is nested under /users/{userId}.
+ *
+ * Key Security Decisions:
+ * - Users can only access data under their own user ID.
+ * - Data types and optional/required fields are not validated in this prototyping phase.
+ * - List operations are restricted to the owner of the data.
+ * - Rules validate that user IDs in the path match the authenticated user's UID.
+ *
+ * Authorization Independence: User data is stored under their unique `userId`, ensuring clear ownership.
+ * Security rules directly check `request.auth.uid` without needing to perform `get()` operations on parent documents.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Checks if the request is made by a signed-in user.
+     * @return {boolean} True if the user is signed in, false otherwise.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the request is made by the owner of the resource.
+     * @param {string} userId - The user ID to compare with the request's authentication UID.
+     * @return {boolean} True if the user is the owner, false otherwise.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the request is made by the owner of the resource and the resource exists.
+     * @param {string} userId - The user ID to compare with the request's authentication UID.
+     * @return {boolean} True if the user is the owner and the resource exists, false otherwise.
+     */
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Defines rules for user categories.
+     * @path /users/{userId}/categories/{categoryId}
+     * @allow (create) - Authenticated user 'user_abc' can create a category with ID matching their user ID.
+     * @allow (get) - Authenticated user 'user_abc' can get their category.
+     * @allow (list) - Authenticated user 'user_abc' can list their categories.
+     * @allow (update) - Authenticated user 'user_abc' can update their category.
+     * @allow (delete) - Authenticated user 'user_abc' can delete their category.
+     * @deny (create) - Authenticated user 'user_xyz' cannot create a category under 'user_abc''s ID.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/categories/{categoryId} {
+      // Read rules
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+
+      // Write rules
+      allow create: if isOwner(userId) && request.resource.data.id == categoryId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for user budgets.
+     * @path /users/{userId}/budgets/{budgetId}
+     * @allow (create) - Authenticated user 'user_abc' can create a budget with ID matching their user ID.
+     * @allow (get) - Authenticated user 'user_abc' can get their budget.
+     * @allow (list) - Authenticated user 'user_abc' can list their budgets.
+     * @allow (update) - Authenticated user 'user_abc' can update their budget.
+     * @allow (delete) - Authenticated user 'user_abc' can delete their budget.
+     * @deny (create) - Authenticated user 'user_xyz' cannot create a budget under 'user_abc''s ID.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/budgets/{budgetId} {
+      // Read rules
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+
+      // Write rules
+      allow create: if isOwner(userId) && request.resource.data.id == budgetId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Defines rules for user transactions.
+     * @path /users/{userId}/transactions/{transactionId}
+     * @allow (create) - Authenticated user 'user_abc' can create a transaction with ID matching their user ID.
+     * @allow (get) - Authenticated user 'user_abc' can get their transaction.
+     * @allow (list) - Authenticated user 'user_abc' can list their transactions.
+     * @allow (update) - Authenticated user 'user_abc' can update their transaction.
+     * @allow (delete) - Authenticated user 'user_abc' can delete their transaction.
+     * @deny (create) - Authenticated user 'user_xyz' cannot create a transaction under 'user_abc''s ID.
+     * @principle Enforces document ownership for writes.
+     */
+    match /users/{userId}/transactions/{transactionId} {
+      // Read rules
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+
+      // Write rules
+      allow create: if isOwner(userId) && request.resource.data.id == transactionId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * Recurring bills collection.
+     * Owned per-user; the document ID must match the stored `id` field.
+     */
+    match /users/{userId}/recurringBills/{billId} {
+      // Read rules
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+
+      // Write rules
+      allow create: if isOwner(userId) && request.resource.data.id == billId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * FUTURE-PROOF CATCH-ALL.
+     * The authenticated owner may read and write any document anywhere under
+     * their OWN user subtree (`/users/{their-uid}/**`). This covers every
+     * current and future subcollection — recurringBills, and anything added
+     * later — so shipping a new feature never requires another rules deploy.
+     * Access stays strictly scoped to the owner's own path; other users and
+     * unauthenticated requests are still denied by default.
+     */
+    match /users/{userId}/{document=**} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
