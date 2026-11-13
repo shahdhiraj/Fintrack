@@ -1,4 +1,35 @@
-import { Category } from './types';
+import { BillFrequency, Category, WalletColor, WalletType } from './types';
+
+/** Demo wallets are referenced from samples by `key`; real IDs are assigned at load time. */
+export type SampleWalletKey = 'bank' | 'card' | 'cash' | 'savings';
+
+export type SampleWallet = {
+  key: SampleWalletKey;
+  name: string;
+  type: WalletType;
+  openingBalance: number;
+  color: WalletColor;
+};
+
+export const SAMPLE_WALLETS: SampleWallet[] = [
+  { key: 'bank', name: 'Main Checking', type: 'bank', openingBalance: 2400, color: 'emerald' },
+  { key: 'card', name: 'Visa Credit Card', type: 'credit', openingBalance: 0, color: 'violet' },
+  { key: 'cash', name: 'Cash Wallet', type: 'cash', openingBalance: 150, color: 'amber' },
+  { key: 'savings', name: 'Emergency Savings', type: 'savings', openingBalance: 5000, color: 'sky' },
+];
+
+export type SampleTransfer = {
+  from: SampleWalletKey;
+  to: SampleWalletKey;
+  amount: number;
+  daysAgo: number;
+  note: string;
+};
+
+export const SAMPLE_TRANSFERS: SampleTransfer[] = [
+  { from: 'bank', to: 'savings', amount: 500, daysAgo: 1, note: 'Monthly savings' },
+  { from: 'bank', to: 'cash', amount: 100, daysAgo: 8, note: 'ATM withdrawal' },
+];
 
 export type SampleTransaction = {
   description: string;
@@ -6,121 +37,52 @@ export type SampleTransaction = {
   type: 'income' | 'expense';
   category: Category;
   daysAgo: number;
+  wallet: SampleWalletKey;
 };
 
 export const SAMPLE_TRANSACTIONS: SampleTransaction[] = [
-  {
-    description: 'Monthly Tech Salary',
-    amount: 5200.00,
-    type: 'income',
-    category: 'Salary',
-    daysAgo: 1,
-  },
-  {
-    description: 'Whole Foods Organic Groceries',
-    amount: 142.50,
-    type: 'expense',
-    category: 'Groceries',
-    daysAgo: 2,
-  },
-  {
-    description: 'Modern Apartment Rent',
-    amount: 1650.00,
-    type: 'expense',
-    category: 'Housing',
-    daysAgo: 3,
-  },
-  {
-    description: 'Freelance UI/UX Design Client',
-    amount: 1400.00,
-    type: 'income',
-    category: 'Salary',
-    daysAgo: 4,
-  },
-  {
-    description: 'Subway & Uber Passes',
-    amount: 68.20,
-    type: 'expense',
-    category: 'Transport',
-    daysAgo: 5,
-  },
-  {
-    description: 'Spotify & Netflix Subscriptions',
-    amount: 29.99,
-    type: 'expense',
-    category: 'Entertainment',
-    daysAgo: 6,
-  },
-  {
-    description: 'Fitness Gym Membership',
-    amount: 55.00,
-    type: 'expense',
-    category: 'Health',
-    daysAgo: 7,
-  },
-  {
-    description: 'Nike Running Shoes & Apparel',
-    amount: 124.99,
-    type: 'expense',
-    category: 'Shopping',
-    daysAgo: 9,
-  },
-  {
-    description: 'Electric & Fiber Internet Bill',
-    amount: 135.40,
-    type: 'expense',
-    category: 'Utilities',
-    daysAgo: 11,
-  },
-  {
-    description: 'Artisan Coffee & Bakery',
-    amount: 18.50,
-    type: 'expense',
-    category: 'Groceries',
-    daysAgo: 12,
-  },
-  {
-    description: 'Stock Investment Dividend',
-    amount: 320.00,
-    type: 'income',
-    category: 'Salary',
-    daysAgo: 14,
-  },
-  {
-    description: 'Dinner at Italian Bistro',
-    amount: 86.40,
-    type: 'expense',
-    category: 'Entertainment',
-    daysAgo: 16,
-  },
-  {
-    description: 'Pharmacy & Wellness Vitamins',
-    amount: 42.10,
-    type: 'expense',
-    category: 'Health',
-    daysAgo: 18,
-  },
-  {
-    description: 'Shell Gas Station Refill',
-    amount: 48.00,
-    type: 'expense',
-    category: 'Transport',
-    daysAgo: 21,
-  },
+  { description: 'Monthly Tech Salary', amount: 5200.0, type: 'income', category: 'Salary', daysAgo: 1, wallet: 'bank' },
+  { description: 'Whole Foods Organic Groceries', amount: 142.5, type: 'expense', category: 'Groceries', daysAgo: 2, wallet: 'card' },
+  { description: 'Modern Apartment Rent', amount: 1650.0, type: 'expense', category: 'Housing', daysAgo: 3, wallet: 'bank' },
+  { description: 'Freelance UI/UX Design Client', amount: 1400.0, type: 'income', category: 'Freelance', daysAgo: 4, wallet: 'bank' },
+  { description: 'Subway & Uber Passes', amount: 68.2, type: 'expense', category: 'Transport', daysAgo: 5, wallet: 'card' },
+  { description: 'Spotify & Netflix Subscriptions', amount: 29.99, type: 'expense', category: 'Subscriptions', daysAgo: 6, wallet: 'card' },
+  { description: 'Fitness Gym Membership', amount: 55.0, type: 'expense', category: 'Health', daysAgo: 7, wallet: 'card' },
+  { description: 'Nike Running Shoes & Apparel', amount: 124.99, type: 'expense', category: 'Shopping', daysAgo: 9, wallet: 'card' },
+  { description: 'Electric & Fiber Internet Bill', amount: 135.4, type: 'expense', category: 'Utilities', daysAgo: 11, wallet: 'bank' },
+  { description: 'Artisan Coffee & Bakery', amount: 18.5, type: 'expense', category: 'Dining Out', daysAgo: 12, wallet: 'cash' },
+  { description: 'Stock Investment Dividend', amount: 320.0, type: 'income', category: 'Investments', daysAgo: 14, wallet: 'savings' },
+  { description: 'Dinner at Italian Bistro', amount: 86.4, type: 'expense', category: 'Dining Out', daysAgo: 16, wallet: 'card' },
+  { description: 'Pharmacy & Wellness Vitamins', amount: 42.1, type: 'expense', category: 'Health', daysAgo: 18, wallet: 'cash' },
+  { description: 'Shell Gas Station Refill', amount: 48.0, type: 'expense', category: 'Transport', daysAgo: 21, wallet: 'card' },
+  // Previous months, so trends and the 6-month chart have history.
+  { description: 'Monthly Tech Salary', amount: 5200.0, type: 'income', category: 'Salary', daysAgo: 32, wallet: 'bank' },
+  { description: 'Modern Apartment Rent', amount: 1650.0, type: 'expense', category: 'Housing', daysAgo: 34, wallet: 'bank' },
+  { description: 'Weekly Groceries', amount: 210.35, type: 'expense', category: 'Groceries', daysAgo: 38, wallet: 'card' },
+  { description: 'Weekend Trip Train Tickets', amount: 184.0, type: 'expense', category: 'Travel', daysAgo: 45, wallet: 'card' },
+  { description: 'Monthly Tech Salary', amount: 5000.0, type: 'income', category: 'Salary', daysAgo: 62, wallet: 'bank' },
+  { description: 'Modern Apartment Rent', amount: 1650.0, type: 'expense', category: 'Housing', daysAgo: 64, wallet: 'bank' },
+  { description: 'Online Course Subscription', amount: 49.0, type: 'expense', category: 'Education', daysAgo: 70, wallet: 'card' },
+  { description: 'Monthly Tech Salary', amount: 5000.0, type: 'income', category: 'Salary', daysAgo: 92, wallet: 'bank' },
+  { description: 'Modern Apartment Rent', amount: 1650.0, type: 'expense', category: 'Housing', daysAgo: 94, wallet: 'bank' },
 ];
 
 export type SampleBill = {
   name: string;
   amount: number;
   category: Category;
+  /** Negative = already overdue, to demo overdue alerts. */
   dueInDays: number;
+  frequency: BillFrequency;
+  wallet: SampleWalletKey;
 };
 
 export const SAMPLE_BILLS: SampleBill[] = [
-  { name: 'Netflix Subscription', amount: 15.99, category: 'Subscriptions', dueInDays: 5 },
-  { name: 'Spotify Premium', amount: 9.99, category: 'Subscriptions', dueInDays: 9 },
-  { name: 'Adobe Creative Cloud', amount: 52.99, category: 'Subscriptions', dueInDays: 14 },
-  { name: 'Apartment Rent', amount: 1650.0, category: 'Housing', dueInDays: 21 },
+  { name: 'Car Insurance', amount: 96.0, category: 'Transport', dueInDays: -2, frequency: 'monthly', wallet: 'bank' },
+  { name: 'Netflix Subscription', amount: 15.99, category: 'Subscriptions', dueInDays: 2, frequency: 'monthly', wallet: 'card' },
+  { name: 'Spotify Premium', amount: 9.99, category: 'Subscriptions', dueInDays: 9, frequency: 'monthly', wallet: 'card' },
+  { name: 'Adobe Creative Cloud', amount: 599.88, category: 'Subscriptions', dueInDays: 14, frequency: 'yearly', wallet: 'card' },
+  { name: 'Apartment Rent', amount: 1650.0, category: 'Housing', dueInDays: 21, frequency: 'monthly', wallet: 'bank' },
 ];
 
 export const CATEGORY_ICONS: Record<Category, string> = {

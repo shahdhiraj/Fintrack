@@ -1,4 +1,3 @@
-'use client';
     
 import { useState, useEffect } from 'react';
 import {
@@ -40,6 +39,7 @@ export interface UseDocResult<T> {
  */
 export function useDoc<T = any>(
   memoizedDocRef: DocumentReference<DocumentData> | null | undefined,
+  options?: { suppressErrorEmit?: boolean }
 ): UseDocResult<T> {
   type StateDataType = WithId<T> | null;
 
@@ -81,13 +81,15 @@ export function useDoc<T = any>(
         setData(null)
         setIsLoading(false)
 
-        // trigger global error propagation
-        errorEmitter.emit('permission-error', contextualError);
+        // trigger global error propagation unless suppressed
+        if (!options?.suppressErrorEmit) {
+          errorEmitter.emit('permission-error', contextualError);
+        }
       }
     );
 
     return () => unsubscribe();
-  }, [memoizedDocRef]); // Re-run if the memoizedDocRef changes.
+  }, [memoizedDocRef, options?.suppressErrorEmit]); // Re-run if the memoizedDocRef changes.
 
   return { data, isLoading, error };
 }

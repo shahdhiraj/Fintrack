@@ -1,4 +1,3 @@
-'use client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,7 +12,7 @@ import {
 import placeholderData from '@/lib/placeholder-images.json';
 import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import Link from 'next/link';
+import Link from '@/components/link';
 
 const userAvatar = placeholderData.placeholderImages.find(
   (p) => p.id === 'user-avatar'
@@ -34,7 +33,7 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="relative h-10 w-10 md:h-8 md:w-8 rounded-full" aria-label="Account menu">
           <Avatar className="h-9 w-9">
             {userAvatar && (
               <AvatarImage

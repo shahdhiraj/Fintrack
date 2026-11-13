@@ -1,22 +1,28 @@
-'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Info, ArrowUpRight, ArrowDownRight, ChevronDown, TrendingUp } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTransaction } from '@/context/transaction-context';
+import { useTodayKey } from '@/hooks/use-now';
+import { formatTrend } from '@/lib/finance';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+const RANGES = [3, 6, 12] as const;
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export function EarningOverviewChart() {
   const { transactions } = useTransaction();
+  const [months, setMonths] = useState<(typeof RANGES)[number]>(6);
+  const todayKey = useTodayKey();
 
   const { data, totalEarnings, trend, hasData } = useMemo(() => {
     const now = new Date();
-    // Build the trailing 6-month buckets, oldest first.
+    // Build the trailing N-month buckets, oldest first.
     const buckets: { key: string; month: string; amount: number }[] = [];
-    for (let i = 5; i >= 0; i--) {
+    for (let i = months - 1; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       buckets.push({
         key: `${d.getFullYear()}-${d.getMonth()}`,
@@ -29,15 +35,16 @@ export function EarningOverviewChart() {
     let total = 0;
     for (const t of transactions) {
       if (t.type !== 'income') continue;
-      total += t.amount;
       const d = t.date.toDate();
       const bucket = index.get(`${d.getFullYear()}-${d.getMonth()}`);
-      if (bucket) bucket.amount += t.amount;
+      if (!bucket) continue; // outside the selected range
+      bucket.amount += t.amount;
+      total += t.amount;
     }
 
     const current = buckets[buckets.length - 1].amount;
     const previous = buckets[buckets.length - 2]?.amount ?? 0;
-    const change = previous > 0 ? ((current - previous) / previous) * 100 : current > 0 ? 100 : 0;
+    const change = previous > 0 ? ((current - previous) / previous) * 100 : null;
 
     return {
       data: buckets,
@@ -45,7 +52,9 @@ export function EarningOverviewChart() {
       trend: change,
       hasData: total > 0,
     };
-  }, [transactions]);
+    // todayKey re-buckets when the month rolls over.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions, months, todayKey]);
 
   return (
     <Card className="h-full border border-border/50 bg-card rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
@@ -54,10 +63,23 @@ export function EarningOverviewChart() {
           <span className="text-sm font-bold text-foreground">Earning Overview</span>
           <Info className="w-3.5 h-3.5" />
         </div>
-        <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg gap-1 border-border/60">
-          <span>Last 6 Months</span>
-          <ChevronDown className="w-3 h-3 text-muted-foreground" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg gap-1 border-border/60">
+              <span>Last {months} Months</span>
+              <ChevronDown className="w-3 h-3 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuRadioGroup value={String(months)} onValueChange={(v) => setMonths(Number(v) as (typeof RANGES)[number])}>
+              {RANGES.map((r) => (
+                <DropdownMenuRadioItem key={r} value={String(r)} className="text-xs">
+                  Last {r} Months
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </CardHeader>
 
       <CardContent className="space-y-4 pt-1 flex-1 flex flex-col justify-between">
@@ -65,16 +87,16 @@ export function EarningOverviewChart() {
           <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
             ${totalEarnings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
-          {hasData && (
+          {hasData && trend !== null && (
             <span
+              title="This month compared with last month"
               className={`inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full border ${
                 trend >= 0
                   ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
                   : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20'
               }`}
             >
-              {trend >= 0 ? '+' : ''}
-              {trend.toFixed(1)}%
+              {formatTrend(trend)}
               {trend >= 0 ? <ArrowUpRight className="w-3 h-3 inline" /> : <ArrowDownRight className="w-3 h-3 inline" />}
             </span>
           )}

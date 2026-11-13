@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
-    "build": "next build",
-    "start": "next start -H 0.0.0.0",
-    "lint": "next lint"
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "deploy:rules": "npx firebase-tools deploy --only firestore:rules",
+    "deploy:hosting": "npm run build && npx firebase-tools deploy --only hosting",
+    "desktop": "npm run build && electron .",
+    "desktop:build": "npm run build && electron-builder --win"
   },
   "dependencies": {
-    "@genkit-ai/google-genai": "^1.29.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "*",
     "@radix-ui/react-alert-dialog": "*",
@@ -32,25 +35,25 @@
     "@radix-ui/react-tabs": "*",
     "@radix-ui/react-toast": "*",
     "@radix-ui/react-tooltip": "*",
+    "@remotion/player": "^4.0.543",
     "@tanstack/react-table": "^8.20.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cssesc": "^3.0.0",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.4.5",
     "embla-carousel-react": "^8.3.1",
     "firebase": "^11.0.1",
     "framer-motion": "^13.4.0",
-    "genkit": "^1.29.0",
     "gsap": "^3.15.0",
     "lucide-react": "^0.454.0",
-    "next": "15.0.3",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",
     "react-day-picker": "^9.2.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.1",
+    "react-router-dom": "^6.28.0",
     "recharts": "^2.13.0",
+    "remotion": "^4.0.543",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
@@ -59,11 +62,64 @@
     "@types/node": "^20.17.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
     "eslint": "^8.57.1",
-    "eslint-config-next": "15.0.3",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vite-plugin-pwa": "^0.21.2"
+  },
+  "type": "module",
+  "description": "FinTrack: personal budgeting app",
+  "author": "FinTrack",
+  "main": "electron/main.cjs",
+  "build": {
+    "appId": "app.fintrack.desktop",
+    "productName": "FinTrack",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "build/icon.png",
+      "!dist/landing-pages/**",
+      "!**/node_modules/**/*"
+    ],
+    "npmRebuild": false,
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FinTrack",
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    }
   }
 }

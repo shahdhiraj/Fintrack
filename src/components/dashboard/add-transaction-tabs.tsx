@@ -1,4 +1,3 @@
-'use client';
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -43,9 +42,11 @@ import {
   Gift,
   CreditCard,
   Plane,
+  Utensils,
 } from 'lucide-react';
 import { useTransaction } from '@/context/transaction-context';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatMoney } from '@/lib/utils';
 
 const expenseCategories: Category[] = [
   'Groceries',
@@ -55,6 +56,9 @@ const expenseCategories: Category[] = [
   'Health',
   'Shopping',
   'Utilities',
+  'Dining Out',
+  'Subscriptions',
+  'Travel',
   'Other',
 ];
 
@@ -64,8 +68,6 @@ const incomeCategories: Category[] = [
   'Investments',
   'Business',
   'Gifts',
-  'Subscriptions',
-  'Travel',
   'Other',
 ];
 
@@ -84,8 +86,12 @@ const categoryIcons: Record<string, React.ElementType> = {
   Gifts: Gift,
   Subscriptions: CreditCard,
   Travel: Plane,
+  'Dining Out': Utensils,
   Other: MoreHorizontal,
 };
+
+/** Soft hyphens in the longest names, so they wrap with a hyphen in narrow grid cells (shown only when they wrap). */
+const softHyphenate = (name: string) => name.replace("Entertainment", "Entertain\u00ADment").replace("Subscriptions", "Subscrip\u00ADtions");
 
 export function AddTransactionTabs() {
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
@@ -133,7 +139,7 @@ export function AddTransactionTabs() {
 
     toast({
       title: `${activeTab === 'income' ? 'Income' : 'Expense'} Added!`,
-      description: `\$${parsedAmount} for ${selectedCategory}.`,
+      description: `${formatMoney(parsedAmount)} for ${selectedCategory}.`,
     });
 
     setAmount('');
@@ -184,7 +190,10 @@ export function AddTransactionTabs() {
       return 'Utilities';
     }
     if (/(salary|payroll|paycheck|freelance|client|stipend|bonus|income|payout)/i.test(lower)) {
-      return 'Salary';
+      return /freelance|client/i.test(lower) ? 'Freelance' : 'Salary';
+    }
+    if (/(dividend|stock|interest|crypto|invest)/i.test(lower)) {
+      return 'Investments';
     }
     return null;
   };
@@ -193,7 +202,7 @@ export function AddTransactionTabs() {
     const val = e.target.value;
     setDescription(val);
     const detected = autoDetectCategory(val);
-    if (detected && detected !== selectedCategory) {
+    if (detected && detected !== selectedCategory && currentCategories.includes(detected)) {
       setSelectedCategory(detected);
     }
   };
@@ -201,9 +210,9 @@ export function AddTransactionTabs() {
   return (
     <Card className="h-full border border-border/50 bg-card rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-extrabold tracking-tight text-foreground flex items-center justify-between">
+        <CardTitle className="text-xl font-extrabold tracking-tight text-foreground flex flex-wrap items-center justify-between gap-2">
           <span>Add Transaction</span>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <span className="whitespace-nowrap text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             ✨ Auto-Categorization Active
           </span>
         </CardTitle>
@@ -231,18 +240,47 @@ export function AddTransactionTabs() {
           </TabsList>
         </Tabs>
 
-        {/* Circular Wheel Dial Interface */}
-        <div className="flex-1 flex items-center justify-center min-h-[360px] py-6">
-          <div className="relative w-84 h-84 sm:w-88 sm:h-88 flex items-center justify-center rounded-3xl border border-border/40 bg-muted/10 p-8">
+        {/* Phones: a grid of category buttons. The wheel needs more room than a phone has. */}
+        <div className="space-y-3 py-4 sm:hidden">
+          <button
+            type="button"
+            onClick={() => handleCategoryClick('Other')}
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 active:scale-[0.98]"
+          >
+            <Plus className="h-5 w-5" aria-hidden="true" />
+            Add {activeTab === 'income' ? 'income' : 'an expense'}
+          </button>
+          <ul className="grid grid-cols-3 gap-2 min-[400px]:grid-cols-4" aria-label="Choose a category">
+            {currentCategories.map((category) => {
+              const Icon = categoryIcons[category] || MoreHorizontal;
+              return (
+                <li key={category} className="min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => handleCategoryClick(category)}
+                    className="flex min-h-[4.5rem] w-full flex-col items-center justify-center gap-1.5 rounded-2xl border border-border/60 bg-card px-1 transition-colors hover:border-emerald-600 active:scale-95"
+                  >
+                    <Icon className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                    <span className="w-full text-center text-xs font-semibold leading-tight break-words">{softHyphenate(category)}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Circular Wheel Dial Interface (640px and up) */}
+        <div className="hidden flex-1 items-center justify-center min-h-[360px] py-6 sm:flex">
+          <div className="relative w-[300px] h-[300px] sm:w-[336px] sm:h-[336px] max-w-full flex items-center justify-center rounded-3xl border border-border/40 bg-muted/10 p-8">
             {/* Center Big Green Plus Circle */}
-            <div className="absolute w-20 h-20 sm:w-24 sm:h-24 bg-emerald-600 dark:bg-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-600/20 hover:scale-105 transition-transform cursor-pointer z-10">
+            <div className="absolute w-20 h-20 sm:w-24 sm:h-24 bg-emerald-600 dark:bg-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-600/20 hover:scale-105 transition-transform cursor-pointer z-10" role="button" tabIndex={0} aria-label="Add transaction" onClick={() => handleCategoryClick('Other')} onKeyDown={(e) => e.key === 'Enter' && handleCategoryClick('Other')}>
               <Plus className="h-9 w-9 sm:h-10 sm:w-10 text-white stroke-[2.5]" />
             </div>
 
             {/* Orbiting Category Nodes */}
             {currentCategories.map((category, index) => {
               const angle = angleStep * index - 90; // Start at top
-              const orbitalRadius = 112; // Adjusted radius for optimal spacing inside 336px container
+              const orbitalRadius = 106; // Adjusted radius for optimal spacing inside 336px container
               const x = orbitalRadius * Math.cos((angle * Math.PI) / 180);
               const y = orbitalRadius * Math.sin((angle * Math.PI) / 180);
               const Icon = categoryIcons[category] || MoreHorizontal;
@@ -261,7 +299,7 @@ export function AddTransactionTabs() {
                     size="icon"
                     className="w-11 h-11 rounded-full border border-border/60 bg-card hover:bg-emerald-500/10 hover:border-emerald-600 shadow-sm flex items-center justify-center transition-all duration-200 group-hover:scale-110"
                   >
-                    <Icon className="h-4.5 w-4.5 text-muted-foreground group-hover:text-emerald-600 transition-colors" />
+                    <Icon className="h-[18px] w-[18px] text-muted-foreground group-hover:text-emerald-600 transition-colors" />
                   </Button>
                   <span className="text-[10px] sm:text-[11px] font-bold text-foreground mt-0.5 tracking-tight group-hover:text-emerald-600 transition-colors whitespace-nowrap">
                     {category}
@@ -295,6 +333,8 @@ export function AddTransactionTabs() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
+                  min="0.01"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddTransaction()}
                   autoFocus
                   className="h-11 text-sm font-semibold rounded-xl border-emerald-600/70 focus-visible:ring-emerald-600/30"
                 />
@@ -306,7 +346,7 @@ export function AddTransactionTabs() {
                 <Label htmlFor="desc" className="text-xs font-bold text-muted-foreground">
                   Note / Description (Optional)
                 </Label>
-                {description.trim() && autoDetectCategory(description) && (
+                {description.trim() && currentCategories.includes(autoDetectCategory(description) as Category) && (
                   <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
                     ✨ Auto-Detected Category
                   </span>
@@ -318,6 +358,7 @@ export function AddTransactionTabs() {
                 value={description}
                 onChange={handleDescriptionChange}
                 placeholder="e.g. Starbucks coffee, Walmart groceries, Uber ride"
+                onKeyDown={(e) => e.key === 'Enter' && handleAddTransaction()}
                 className="h-10 text-xs rounded-xl mt-1.5"
               />
             </div>

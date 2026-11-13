@@ -1,12 +1,10 @@
-'use client';
 
 import { useUser } from '@/firebase';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from '@/lib/navigation';
 import { useEffect } from 'react';
+import { isAppRoute, isAuthRoute } from '@/lib/routes';
 import { Skeleton } from './ui/skeleton';
 
-const authRoutes = ['/login', '/signup'];
-const publicRoutes = ['/', '/login', '/signup']; // Define public routes
 
 export function AuthController({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
@@ -16,19 +14,21 @@ export function AuthController({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isUserLoading) return; // Wait until user is loaded
 
-    const isAuthRoute = authRoutes.includes(pathname);
-    const isPublicRoute = publicRoutes.includes(pathname);
-
-    if (user && isAuthRoute) {
+    // Only the signed-in app needs an account. Marketing pages, auth pages and unknown
+    // URLs (which render the 404 page) stay public.
+    if (user && isAuthRoute(pathname)) {
       router.push('/dashboard');
-    } else if (!user && !isPublicRoute) {
+    } else if (!user && isAppRoute(pathname)) {
       router.push('/login');
     }
   }, [user, isUserLoading, router, pathname]);
 
   // Render a loading skeleton during the initial user check or during route transitions.
   // This prevents content flashing and ensures a smoother user experience.
-  if (isUserLoading || (!user && !publicRoutes.includes(pathname))) {
+  // Marketing pages and the 404 render straight away. App pages wait for a user; auth pages
+  // wait for the check so a signed-in visitor never sees the login form flash before redirecting.
+  const waiting = isAppRoute(pathname) ? isUserLoading || !user : isAuthRoute(pathname) && (isUserLoading || !!user);
+  if (waiting) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="space-y-4 p-8 max-w-sm w-full">

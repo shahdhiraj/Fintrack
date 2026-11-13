@@ -1,12 +1,15 @@
-'use client';
 
+import Link from '@/components/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, CalendarClock } from 'lucide-react';
+import { CalendarClock, Check } from 'lucide-react';
 import { useTransaction } from '@/context/transaction-context';
 import { useToast } from '@/hooks/use-toast';
+import { useNow } from '@/hooks/use-now';
 import { AddRecurringBillDialog } from './add-recurring-bill-dialog';
 import type { RecurringBill } from '@/lib/types';
+import { describeDue, dueState } from '@/lib/finance';
+import { cn, formatMoney } from '@/lib/utils';
 import { format } from 'date-fns';
 
 const AVATAR_STYLES = [
@@ -18,26 +21,22 @@ const AVATAR_STYLES = [
 ];
 
 export function UpcomingBillsCard() {
-  const { recurringBills, addTransaction, deleteRecurringBill } = useTransaction();
+  const { recurringBills, payRecurringBill } = useTransaction();
   const { toast } = useToast();
+  const now = useNow(60_000);
+
+  const scheduled = recurringBills.filter((b) => b.status !== 'Paid');
+  const visibleBills = scheduled.slice(0, 4);
 
   const handlePay = (bill: RecurringBill) => {
-    addTransaction({
-      description: bill.name,
-      amount: bill.amount,
-      type: 'expense',
-      category: bill.category,
-      date: new Date(),
-    });
-    deleteRecurringBill(bill.id);
-
+    const next = payRecurringBill(bill);
     toast({
-      title: 'Bill Paid! 💳',
-      description: `Recorded $${bill.amount.toFixed(2)} for ${bill.name}`,
+      title: 'Bill paid 💳',
+      description: next
+        ? `Recorded ${formatMoney(bill.amount)} for ${bill.name}. Next due ${format(next, 'MMM d, yyyy')}.`
+        : `Recorded ${formatMoney(bill.amount)} for ${bill.name}.`,
     });
   };
-
-  const visibleBills = recurringBills.slice(0, 4);
 
   return (
     <Card className="h-full border border-border/50 bg-card rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
@@ -49,36 +48,43 @@ export function UpcomingBillsCard() {
       <CardContent className="space-y-3 pt-1 flex-1 flex flex-col justify-between">
         {visibleBills.length > 0 ? (
           <div className="space-y-2.5">
-            {visibleBills.map((bill, idx) => (
-              <div
-                key={bill.id}
-                onClick={() => handlePay(bill)}
-                className="group flex items-center justify-between p-2.5 rounded-xl border border-border/40 hover:bg-muted/40 transition-all cursor-pointer"
-                title="Click to mark as paid"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm border ${AVATAR_STYLES[idx % AVATAR_STYLES.length]}`}>
-                    {bill.name.charAt(0).toUpperCase()}
+            {visibleBills.map((bill, idx) => {
+              const due = bill.dueDate.toDate();
+              const state = dueState(due, now, 3);
+              return (
+                <div key={bill.id} className="group flex items-center justify-between p-2.5 rounded-xl border border-border/40 hover:bg-muted/40 transition-all">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm border flex-shrink-0 ${AVATAR_STYLES[idx % AVATAR_STYLES.length]}`}>
+                      {bill.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-foreground truncate">{bill.name}</p>
+                      <p
+                        className={cn(
+                          'text-[11px]',
+                          state === 'overdue' ? 'text-rose-600 font-semibold' : state === 'today' || state === 'soon' ? 'text-amber-600' : 'text-muted-foreground'
+                        )}
+                      >
+                        {format(due, 'MMM d, yyyy')} · {describeDue(due, now)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-foreground group-hover:text-emerald-600 transition-colors">
-                      {bill.name}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {format(bill.dueDate.toDate(), 'MMMM d, yyyy')}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="text-right flex items-center gap-2">
-                  <div>
-                    <p className="text-xs font-extrabold text-foreground">${bill.amount.toFixed(2)}</p>
-                    <span className="text-[10px] text-muted-foreground">{bill.status}</span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <p className="text-xs font-extrabold text-foreground">{formatMoney(bill.amount)}</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-[11px] rounded-lg gap-1"
+                      onClick={() => handlePay(bill)}
+                      title="Mark as paid and record the expense"
+                    >
+                      <Check className="w-3 h-3" /> Pay
+                    </Button>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-1.5 py-8">
@@ -88,15 +94,14 @@ export function UpcomingBillsCard() {
           </div>
         )}
 
-        {recurringBills.length > 0 && (
-          <Button
-            variant="secondary"
-            size="sm"
-            className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-xl h-8 mt-2"
-          >
-            View All
-          </Button>
-        )}
+        <Button
+          asChild
+          variant="secondary"
+          size="sm"
+          className="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-xl h-8 mt-2"
+        >
+          <Link href="/recurring">{scheduled.length > visibleBills.length ? `View all ${scheduled.length} bills` : 'Manage bills'}</Link>
+        </Button>
       </CardContent>
     </Card>
   );

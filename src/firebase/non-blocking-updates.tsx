@@ -1,5 +1,4 @@
-'use client';
-    
+
 import {
   setDoc,
   addDoc,
@@ -13,11 +12,27 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import {FirestorePermissionError} from '@/firebase/errors';
 
 /**
+ * Optional failure handler. A caller that can recover (keep data locally,
+ * show a toast, roll back optimistic UI) passes one; without it the error
+ * is emitted globally and surfaces in the dev error overlay.
+ */
+export type WriteErrorHandler = (error: unknown) => void;
+
+/**
  * Initiates a setDoc operation for a document reference.
  * Does NOT await the write operation internally.
  */
-export function setDocumentNonBlocking(docRef: DocumentReference, data: any, options: SetOptions) {
+export function setDocumentNonBlocking(
+  docRef: DocumentReference,
+  data: any,
+  options: SetOptions,
+  onError?: WriteErrorHandler
+) {
   setDoc(docRef, data, options).catch(error => {
+    if (onError) {
+      onError(error);
+      return;
+    }
     errorEmitter.emit(
       'permission-error',
       new FirestorePermissionError({
@@ -56,9 +71,13 @@ export function addDocumentNonBlocking(colRef: CollectionReference, data: any) {
  * Initiates an updateDoc operation for a document reference.
  * Does NOT await the write operation internally.
  */
-export function updateDocumentNonBlocking(docRef: DocumentReference, data: any) {
+export function updateDocumentNonBlocking(docRef: DocumentReference, data: any, onError?: WriteErrorHandler) {
   updateDoc(docRef, data)
     .catch(error => {
+      if (onError) {
+        onError(error);
+        return;
+      }
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({
@@ -75,9 +94,13 @@ export function updateDocumentNonBlocking(docRef: DocumentReference, data: any) 
  * Initiates a deleteDoc operation for a document reference.
  * Does NOT await the write operation internally.
  */
-export function deleteDocumentNonBlocking(docRef: DocumentReference) {
+export function deleteDocumentNonBlocking(docRef: DocumentReference, onError?: WriteErrorHandler) {
   deleteDoc(docRef)
     .catch(error => {
+      if (onError) {
+        onError(error);
+        return;
+      }
       errorEmitter.emit(
         'permission-error',
         new FirestorePermissionError({

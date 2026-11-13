@@ -1,6 +1,5 @@
-'use client';
 
-import { useState, useTransition, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sparkles, RefreshCw } from 'lucide-react';
@@ -18,26 +17,27 @@ function toParagraphs(text: string): string[] {
 
 export function AiBudgetAssistant() {
   const [advice, setAdvice] = useState<string[] | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const { transactions } = useTransaction();
 
   const summary = useMemo(() => analyzeSpending(transactions), [transactions]);
 
-  const generate = () => {
-    startTransition(async () => {
-      const local = buildLocalAdvice(summary);
-      try {
-        const result = await getAIBudgetSuggestion({ summary: summaryForModel(summary) });
-        if ('suggestion' in result && result.suggestion.trim()) {
-          const paras = toParagraphs(result.suggestion);
-          setAdvice(paras.length ? paras : local);
-        } else {
-          setAdvice(local);
-        }
-      } catch {
+  const generate = async () => {
+    setIsPending(true);
+    const local = buildLocalAdvice(summary);
+    try {
+      const result = await getAIBudgetSuggestion({ summary: summaryForModel(summary) });
+      if ('suggestion' in result && result.suggestion.trim()) {
+        const paras = toParagraphs(result.suggestion);
+        setAdvice(paras.length ? paras : local);
+      } else {
         setAdvice(local);
       }
-    });
+    } catch {
+      setAdvice(local);
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (

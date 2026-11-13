@@ -1,14 +1,15 @@
-'use client';
 
 import React, { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTransaction } from '@/context/transaction-context';
+import { useTodayKey } from '@/hooks/use-now';
 import { TrendingDown, Zap, Calendar } from 'lucide-react';
 import { CATEGORY_ICONS } from '@/lib/sample-data';
 import { Category } from '@/lib/types';
 
 export function DashboardStatCards() {
   const { transactions } = useTransaction();
+  const todayKey = useTodayKey();
 
   const metrics = useMemo(() => {
     const now = new Date();
@@ -60,7 +61,9 @@ export function DashboardStatCards() {
       highestCategoryAmount: maxAmount,
       avgDailySpend,
     };
-  }, [transactions]);
+    // todayKey recomputes the date windows at midnight.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions, todayKey]);
 
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat('en-US', {

@@ -1,7 +1,6 @@
-'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/lib/navigation';
 import {
   Search,
   CornerDownLeft,
@@ -19,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useTransaction } from '@/context/transaction-context';
 import { categories } from '@/lib/types';
 import { getSearchAISuggestions } from '@/lib/actions';
-import type { SearchSuggestionsOutput } from '@/ai/ai-search-suggestions';
+import type { SearchSuggestionsOutput } from '@/lib/actions';
 
 export type SearchPage = { label: string; href: string };
 
@@ -234,7 +233,7 @@ export function GlobalSearch({
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="top-[12%] translate-y-0 max-w-xl gap-0 overflow-hidden p-0 [&>button]:hidden">
-          <DialogTitle className="sr-only">Search Finlo Flash</DialogTitle>
+          <DialogTitle className="sr-only">Search FinTrack</DialogTitle>
 
           {/* Search input */}
           <div className="flex items-center gap-2 border-b border-border/60 px-4">

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- seo:start -->
+    <title>FinTrack: personal budgeting with monthly category limits</title>
+    <meta name="description" content="FinTrack is a personal budgeting app. Track spending, set a monthly limit for each category, and get warned before a budget slips." />
+    <!-- seo:end -->
+    <meta name="theme-color" content="#f3f6f5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1612" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="FinTrack" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://firestore.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Apply the saved theme before first paint to avoid a light/dark flash.
+      try {
+        var t = localStorage.getItem('theme');
+        var dark = t === 'dark' || ((!t || t === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/boot.css" />
+  </head>
+  <body class="font-body antialiased h-full">
+    <div id="root" class="h-full"><div id="boot"><div class="dot"></div><p>Loading FinTrack…</p></div></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,56 +1,38 @@
-'use server';
+/**
+ * Suggestion helpers for the AI Budget Advisor and the search palette.
+ *
+ * These used to call Gemini through Genkit in Next.js server actions. The Vite
+ * build is browser-only, and calling Gemini from the browser would expose the
+ * API key, so they now return on-device suggestions immediately. To bring the
+ * model back, put these calls behind a small backend (e.g. a Firebase Cloud
+ * Function) and call it from here; the signatures can stay the same.
+ */
 
-import { getBudgetRecommendations } from '@/ai/ai-budget-recommendations';
-import {
-  getSearchSuggestions,
-  type SearchSuggestionsInput,
-  type SearchSuggestionsOutput,
-} from '@/ai/ai-search-suggestions';
+export type SearchSuggestionsInput = {
+  query: string;
+  pages: { label: string; href: string }[];
+  categories: string[];
+  /** Short JSON summary of recent transactions (kept for a future AI backend). */
+  recentTransactions: string;
+};
 
-export async function getAIBudgetSuggestion(
-  spendingData: { summary?: string } | unknown
-): Promise<{ suggestion: string } | { error: string }> {
-  try {
-    const financialSummary =
-      spendingData && typeof spendingData === 'object' && 'summary' in spendingData
-        ? String((spendingData as { summary: string }).summary)
-        : JSON.stringify(spendingData, null, 2);
-    const financialGoals = 'Reduce unnecessary spending and increase savings.';
-
-    const result = await getBudgetRecommendations({
-      spendingHistory: financialSummary,
-      financialGoals: financialGoals,
-    });
-
-    return { suggestion: result.recommendations };
-  } catch (error) {
-    console.error('AI suggestion failed:', error);
-    return { error: 'Failed to get AI suggestion. Please try again.' };
-  }
-}
+export type SearchSuggestionsOutput = {
+  answer: string;
+  actions: { label: string; href: string }[];
+};
 
 /**
- * Returns AI-powered suggestions for the global search bar. Falls back to a
- * local heuristic when the model is unavailable (e.g. no API key configured),
- * so the UI always has something helpful to show.
+ * Budget advice. Returns an error so the advisor falls back to its built-in,
+ * data-driven advice (see `buildLocalAdvice` in budget-insights.ts).
  */
+export async function getAIBudgetSuggestion(_spendingData: unknown): Promise<{ suggestion: string } | { error: string }> {
+  return { error: 'AI service not configured; using on-device advice.' };
+}
+
 export async function getSearchAISuggestions(
   input: SearchSuggestionsInput
 ): Promise<SearchSuggestionsOutput & { source: 'ai' | 'fallback' }> {
-  try {
-    const result = await getSearchSuggestions(input);
-    // Guard against the model returning hrefs that aren't real pages.
-    const validHrefs = new Set(input.pages.map((p) => p.href));
-    const actions = (result.actions || []).filter((a) => validHrefs.has(a.href)).slice(0, 3);
-    return {
-      answer: result.answer,
-      actions: actions.length > 0 ? actions : localActions(input),
-      source: 'ai',
-    };
-  } catch (error) {
-    console.error('AI search suggestion failed, using fallback:', error);
-    return { ...localSuggestion(input), source: 'fallback' };
-  }
+  return { ...localSuggestion(input), source: 'fallback' };
 }
 
 function localActions(input: SearchSuggestionsInput): SearchSuggestionsOutput['actions'] {
@@ -60,8 +42,16 @@ function localActions(input: SearchSuggestionsInput): SearchSuggestionsOutput['a
     .slice(0, 3)
     .map((p) => ({ label: `Go to ${p.label}`, href: p.href }));
   if (matches.length > 0) return matches;
-  const dashboard = input.pages.find((p) => p.href === '/dashboard');
-  return dashboard ? [{ label: 'Open Dashboard', href: dashboard.href }] : [];
+
+  // Keyword hints for common intents.
+  const hint = (href: string, label: string) => (input.pages.some((p) => p.href === href) ? [{ label, href }] : []);
+  if (/bill|subscription|rent|due/.test(q)) return hint('/recurring', 'Open Recurring Bills');
+  if (/wallet|account|card|cash|transfer|balance/.test(q)) return hint('/wallets', 'Open Wallets');
+  if (/budget|limit|goal|save/.test(q)) return hint('/budgets', 'Open Budgets & Goals');
+  if (/report|chart|month|trend/.test(q)) return hint('/reports', 'Open Reports');
+  if (/help|how|faq|support/.test(q)) return hint('/help', 'Open Help Desk');
+  if (/setting|theme|export|password|profile/.test(q)) return hint('/settings', 'Open Settings');
+  return hint('/dashboard', 'Open Dashboard');
 }
 
 function localSuggestion(input: SearchSuggestionsInput): SearchSuggestionsOutput {
@@ -71,15 +61,19 @@ function localSuggestion(input: SearchSuggestionsInput): SearchSuggestionsOutput
 
   let answer: string;
   if (matchedCategory) {
-    answer = `Looking into "${matchedCategory}"? Open Transactions to filter by that category or check Budgets & Goals to set a limit.`;
+    answer = `Looking into "${matchedCategory}"? Open Transactions to filter by that category, or set a limit in Budgets & Goals.`;
   } else if (/budget|save|saving|goal/.test(lower)) {
-    answer = `To manage budgets and savings goals, head to Budgets & Goals — you can set category limits and track progress there.`;
+    answer = 'Set category limits and track progress in Budgets & Goals. Limits carry over month to month.';
+  } else if (/bill|subscription|due/.test(lower)) {
+    answer = 'Recurring Bills shows what is due, with reminders and one-click payment.';
+  } else if (/wallet|transfer|balance/.test(lower)) {
+    answer = 'Wallets shows a live balance for each account and lets you move money between them.';
   } else if (/spend|expense|cost/.test(lower)) {
-    answer = `You can review all spending on the Transactions page, or see the breakdown on your Dashboard.`;
+    answer = 'Review all spending on the Transactions page, or see the breakdown on your Dashboard and in Reports.';
   } else if (q.length > 0) {
-    answer = `Here are the closest matches for "${q}". Pick a page below to jump straight there.`;
+    answer = `Here are the closest matches for "${q}".`;
   } else {
-    answer = `Type a page, category, or transaction to jump to it.`;
+    answer = 'Type a page, category, or transaction to jump to it.';
   }
 
   return { answer, actions: localActions(input) };

@@ -1,4 +1,3 @@
-'use client';
 
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -6,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Info, ChevronDown, BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useTransaction } from '@/context/transaction-context';
+import { useTodayKey } from '@/hooks/use-now';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -14,10 +15,20 @@ type Filter = 'income' | 'expense' | 'savings';
 export function CashFlowChart() {
   const { transactions } = useTransaction();
   const [activeFilter, setActiveFilter] = useState<Filter>('income');
+  const todayKey = useTodayKey();
+  const currentYear = new Date().getFullYear();
+  const [year, setYear] = useState(currentYear);
+
+  // Every year that has data, plus the current one, newest first.
+  const years = useMemo(() => {
+    const set = new Set<number>([currentYear]);
+    for (const t of transactions) set.add(t.date.toDate().getFullYear());
+    return [...set].sort((a, b) => b - a);
+  }, [transactions, currentYear]);
 
   const { data, total, hasData, currentMonthIndex } = useMemo(() => {
     const now = new Date();
-    const year = now.getFullYear();
+    const isCurrentYear = year === now.getFullYear();
 
     // Twelve calendar-month buckets for the current year.
     const income = new Array(12).fill(0);
@@ -40,14 +51,15 @@ export function CashFlowChart() {
     const rows = MONTH_LABELS.map((month, m) => ({
       month,
       amount: valueFor(m),
-      active: m === now.getMonth(),
+      active: isCurrentYear && m === now.getMonth(),
     }));
 
     const sum = rows.reduce((acc, r) => acc + r.amount, 0);
     const anyActivity = income.some((v) => v > 0) || expense.some((v) => v > 0);
 
-    return { data: rows, total: sum, hasData: anyActivity, currentMonthIndex: now.getMonth() };
-  }, [transactions, activeFilter]);
+    return { data: rows, total: sum, hasData: anyActivity, currentMonthIndex: isCurrentYear ? now.getMonth() : -1 };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactions, activeFilter, year, todayKey]);
 
   const currentMonthValue = data[currentMonthIndex]?.amount ?? 0;
 
@@ -58,10 +70,23 @@ export function CashFlowChart() {
           <span className="text-sm font-bold text-foreground">Cash Flow</span>
           <Info className="w-3.5 h-3.5" />
         </div>
-        <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg gap-1 border-border/60">
-          <span>Yearly</span>
-          <ChevronDown className="w-3 h-3 text-muted-foreground" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg gap-1 border-border/60">
+              <span>{year}</span>
+              <ChevronDown className="w-3 h-3 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuRadioGroup value={String(year)} onValueChange={(v) => setYear(Number(v))}>
+              {years.map((y) => (
+                <DropdownMenuRadioItem key={y} value={String(y)} className="text-xs">
+                  {y}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </CardHeader>
 
       <CardContent className="space-y-4 pt-1 flex-1 flex flex-col justify-between">

@@ -1,0 +1,5 @@
+/* Loading screen shown until the app's JavaScript takes over (see index.html). */
+#boot { display: flex; height: 100vh; align-items: center; justify-content: center; gap: 12px; flex-direction: column; font-family: system-ui, sans-serif; color: #64748b; }
+#boot .dot { width: 48px; height: 48px; border-radius: 9999px; background: #059669; animation: boot-pulse 1.2s ease-in-out infinite; }
+@keyframes boot-pulse { 50% { opacity: .45; } }
+html.dark body { background: #0b0f0d; }
