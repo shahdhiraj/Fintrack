@@ -145,7 +145,7 @@ export default function WalletsPage() {
           />
           <WalletDialog
             trigger={
-              <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1.5">
+              <Button className="rounded-xl chrome-green chrome-sheen text-white text-xs font-bold gap-1.5">
                 <Plus className="w-4 h-4" /> Add Wallet
               </Button>
             }
@@ -184,7 +184,7 @@ export default function WalletsPage() {
             </div>
             <div className="flex flex-wrap justify-center gap-2">
               <WalletDialog
-                trigger={<Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">Create your first wallet</Button>}
+                trigger={<Button className="rounded-xl chrome-green chrome-sheen text-white text-xs font-bold">Create your first wallet</Button>}
               />
               {!demo.isDemoActive && (
                 <Button variant="outline" className="rounded-xl text-xs font-bold gap-1.5" onClick={demo.enable} disabled={demo.busy}>

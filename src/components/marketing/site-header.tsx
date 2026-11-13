@@ -109,7 +109,7 @@ export function SiteHeader({ delay = 0 }: { delay?: number }) {
           className="flex items-center justify-between gap-2 rounded-full border border-border bg-card/90 py-2 pl-4 pr-2 shadow-[0_10px_30px_-18px_hsl(150_24%_7%_/_0.4)] backdrop-blur-xl sm:pl-5"
         >
           <Link href="/" className="flex min-h-11 shrink-0 items-center gap-2.5 rounded-full pr-2" aria-label="FinTrack home">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <span className="chrome-green flex h-8 w-8 items-center justify-center rounded-lg">
               <Wallet className="h-4 w-4" aria-hidden="true" />
             </span>
             <span className="font-display text-lg font-bold tracking-tight">FinTrack</span>

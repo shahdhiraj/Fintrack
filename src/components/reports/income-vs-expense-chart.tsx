@@ -1,5 +1,6 @@
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { formatMoneyCompact } from '@/lib/currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type IncomeVsExpenseChartProps = {
@@ -36,7 +37,7 @@ export function IncomeVsExpenseChart({
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `$${value}`}
+              tickFormatter={(value) => formatMoneyCompact(Number(value))}
             />
             <Tooltip
                 cursor={{fill: 'transparent'}}

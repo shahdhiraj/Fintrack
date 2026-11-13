@@ -61,7 +61,7 @@ export function ConfirmDialog({
           <AlertDialogAction
             disabled={locked}
             onClick={() => void onConfirm()}
-            className={cn('rounded-xl', destructive && 'bg-rose-600 hover:bg-rose-700 text-white')}
+            className={cn('rounded-xl', destructive && 'btn-danger')}
           >
             {actionLabel}
           </AlertDialogAction>

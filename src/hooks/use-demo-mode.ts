@@ -16,7 +16,7 @@ export function useDemoMode() {
         await loadDemoData();
         toast({
           title: 'Demo Mode on 🚀',
-          description: 'Loaded sample wallets, transactions, transfers and bills. Your own data is untouched.',
+          description: 'Loaded sample wallets, transactions, bills, goals and debts. Your own data is untouched.',
         });
       } else {
         await clearDemoData();

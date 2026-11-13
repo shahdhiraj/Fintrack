@@ -7,6 +7,9 @@ import {
   BarChart3,
   Check,
   ChevronDown,
+  HandCoins,
+  LineChart,
+  PiggyBank,
   Repeat,
   Sparkles,
   Target,
@@ -64,6 +67,21 @@ const CHAPTERS: Chapter[] = [
     where: 'Sidebar, Budgets & Goals',
   },
   {
+    id: 'goals',
+    icon: PiggyBank,
+    nav: 'Savings goals',
+    title: 'Save towards something specific',
+    intro: 'Give a goal a target amount and, if you like, a date. Every time you set money aside, the progress bar moves.',
+    fact: { value: '+ / −', label: 'add money to a goal, or take some out, at any time' },
+    points: [
+      { title: 'Monthly amount needed', body: 'With a target date, FinTrack works out how much to put aside each month to get there.' },
+      { title: 'On-track check', body: 'Your saving pace so far is compared with what is needed, so you know early if you are behind.' },
+      { title: 'Projected finish', body: 'Without a date, see roughly which month you will reach the target at your current pace.' },
+      { title: 'Saving history', body: 'Every amount you added or took out is listed, and can be removed if you made a mistake.' },
+    ],
+    where: 'Sidebar, Budgets & Goals, Savings goals tab',
+  },
+  {
     id: 'wallets',
     icon: Wallet,
     nav: 'Wallets',
@@ -94,6 +112,21 @@ const CHAPTERS: Chapter[] = [
     where: 'Sidebar, Recurring Bills',
   },
   {
+    id: 'debts',
+    icon: HandCoins,
+    nav: 'Debts & loans',
+    title: 'What you owe, and what you are owed',
+    intro: 'Track a loan you are paying off or money you lent someone, with what is left and when it is due.',
+    fact: { value: '2', label: 'directions: money you owe and money owed to you' },
+    points: [
+      { title: 'Repayments', body: 'Record each payment and watch the remaining balance and payoff bar update.' },
+      { title: 'Due dates', body: 'Each debt shows if it is due soon or overdue, and the page counts what is overdue.' },
+      { title: 'Net position', body: 'See the total you owe, the total owed to you, and the difference between them.' },
+      { title: 'Optional transactions', body: 'A repayment can also be added to your transactions so wallet balances include it.' },
+    ],
+    where: 'Sidebar, Debts & Loans',
+  },
+  {
     id: 'reports',
     icon: BarChart3,
     nav: 'Reports',
@@ -107,6 +140,21 @@ const CHAPTERS: Chapter[] = [
       { title: 'Export the report', body: 'Save it as a PDF, or download the summary and transactions as CSV or JSON.' },
     ],
     where: 'Sidebar, Reports',
+  },
+  {
+    id: 'trends',
+    icon: LineChart,
+    nav: 'Trends',
+    title: 'See the last six or twelve months',
+    intro: 'Income, spending and what you kept, month by month, and which way each category is heading.',
+    fact: { value: '12', label: 'months of history in one chart' },
+    points: [
+      { title: 'Month by month', body: 'Income and spending side by side for each month, with the amount you kept drawn as a line.' },
+      { title: 'Averages', body: 'Average monthly spending and income, and your savings rate over the whole period.' },
+      { title: 'Best month', body: 'The month you kept the most, and the month you spent the most.' },
+      { title: 'Category trends', body: 'Spending per category for each month, and whether the latest month is up or down on its average.' },
+    ],
+    where: 'Sidebar, Reports, Trends section',
   },
   {
     id: 'extras',
@@ -191,7 +239,7 @@ export default function FeaturesPage() {
               Everything FinTrack does, <span className="text-chrome">explained.</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Six parts of the app, what each one is for, and exactly what you can do in it.
+              Nine parts of the app, what each one is for, and exactly what you can do in it.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Magnetic>
@@ -390,6 +438,7 @@ export default function FeaturesPage() {
       <section aria-labelledby="features-cta" className="px-4 pb-24 sm:px-6 lg:px-8">
         <div className="chrome-green relative isolate mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 overflow-hidden rounded-[1.75rem] px-6 py-12 sm:px-12 md:flex-row md:items-center">
           <div className="pointer-events-none absolute -right-20 -top-28 -z-10 h-72 w-72 rounded-full bg-[hsl(148_70%_60%_/_0.35)] blur-3xl" aria-hidden="true" />
+          <div className="banner-grid" aria-hidden="true" />
           <div className="max-w-xl space-y-3">
             <h2 id="features-cta" className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Set your first budget in about two minutes.

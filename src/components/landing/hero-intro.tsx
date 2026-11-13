@@ -61,7 +61,7 @@ export function HeroIntro({ delay = 0.1 }: { delay?: number }) {
           Know exactly where your <span className="text-chrome">money goes.</span>
         </h1>
         <p className="mt-6 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-xl">
-          Wallets, budgets, bills and reports in one calm app. Set a limit for each category and hear about it before a budget slips.
+          Budgets, savings goals, bills, debts and reports in one calm app. Set a limit for each category and hear about it before a budget slips.
         </p>
         <Buttons />
       </div>
@@ -114,7 +114,7 @@ export function HeroIntro({ delay = 0.1 }: { delay?: number }) {
           />
 
           <motion.p variants={FADE_UP} className="mt-6 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-xl">
-            Wallets, budgets, bills and reports in one calm app. Set a limit for each category and hear about it before a budget slips.
+            Budgets, savings goals, bills, debts and reports in one calm app. Set a limit for each category and hear about it before a budget slips.
           </motion.p>
 
           <Buttons animated />

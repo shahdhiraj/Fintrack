@@ -1,4 +1,5 @@
 import type { Transaction, Category } from '@/lib/types';
+import { formatMoneyRounded } from '@/lib/currency';
 
 // Categories a person can realistically cut without hurting essentials.
 const DISCRETIONARY: Category[] = [
@@ -22,12 +23,7 @@ export type SpendingSummary = {
   count: number;
 };
 
-const money = (n: number) =>
-  n.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  });
+const money = (n: number) => formatMoneyRounded(n);
 
 export function analyzeSpending(transactions: Transaction[]): SpendingSummary {
   let totalIncome = 0;

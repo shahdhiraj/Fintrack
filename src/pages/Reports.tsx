@@ -9,6 +9,7 @@ import { CategoryBreakdownChart } from '@/components/reports/category-breakdown-
 import { IncomeVsExpenseChart } from '@/components/reports/income-vs-expense-chart';
 import { InsightsCard } from '@/components/reports/insights-card';
 import { ExportMenu } from '@/components/reports/export-menu';
+import { TrendsSection } from '@/components/reports/trends-section';
 import { useTodayKey } from '@/hooks/use-now';
 import { formatTrend, percentChange } from '@/lib/finance';
 import { buildInsights, buildMonthReport, headline } from '@/lib/report-insights';
@@ -101,6 +102,8 @@ export default function ReportsPage() {
         <IncomeVsExpenseChart income={report.income} expense={report.expense} />
         <CategoryBreakdownChart data={view.byCat} />
       </div>
+
+      <TrendsSection transactions={transactions} />
     </div>
   );
 }

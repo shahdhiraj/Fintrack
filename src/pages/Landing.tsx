@@ -78,7 +78,7 @@ export default function LandingPage() {
     {
       id: 1,
       sender: "bot",
-      text: "Hi, I'm your budgeting assistant. Looking at last month, you spent $640 on dining against a $500 plan. Ask me anything about your budget.",
+      text: "Hi, I'm your budgeting assistant. Looking at last month, you spent Nrs. 640 on dining against a Nrs. 500 plan. Ask me anything about your budget.",
     },
   ]);
   const [inputValue, setInputValue] = useState("");
@@ -106,16 +106,16 @@ export default function LandingPage() {
       let reply = "";
       if (q.includes("save") || q.includes("budget") || q.includes("spend")) {
         reply =
-          "Dining is your loosest category. Drop the limit from $640 to $500 and you free up $140 a month without touching essentials.";
+          "Dining is your loosest category. Drop the limit from Nrs. 640 to Nrs. 500 and you free up Nrs. 140 a month without touching essentials.";
       } else if (q.includes("subscription") || q.includes("recurring")) {
         reply =
-          "I found two overlapping streaming charges totalling $27 a month. Cancelling one keeps you inside your entertainment limit.";
+          "I found two overlapping streaming charges totalling Nrs. 27 a month. Cancelling one keeps you inside your entertainment limit.";
       } else if (q.includes("account") || q.includes("balance")) {
         reply =
-          "Across checking and savings you have $20,730 available. Your safe-to-spend for the rest of this month is $410.";
+          "Across checking and savings you have Nrs. 20,730 available. Your safe-to-spend for the rest of this month is Nrs. 410.";
       } else {
         reply =
-          "At your current pace you'll end the month about $180 under budget. Keep that up and it covers a month of groceries by spring.";
+          "At your current pace you'll end the month about Nrs. 180 under budget. Keep that up and it covers a month of groceries by spring.";
       }
 
       let curLen = 0;
@@ -344,7 +344,7 @@ export default function LandingPage() {
                   key={t.name}
                   className={
                     lead
-                      ? `lg:col-span-7 lg:row-span-2 p-8 sm:p-10 ${SURFACE} bg-accent/50 border border-border flex flex-col justify-between gap-10`
+                      ? `chrome-green relative isolate overflow-hidden lg:col-span-7 lg:row-span-2 p-8 sm:p-10 ${SURFACE} flex flex-col justify-between gap-10 text-white`
                       : "lg:col-span-5 pt-6 border-t border-border flex flex-col justify-between gap-5 transition-colors duration-300 hover:border-primary"
                   }
                 >
@@ -358,12 +358,12 @@ export default function LandingPage() {
                     &ldquo;{t.quote}&rdquo;
                   </blockquote>
                   <figcaption className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center" aria-hidden="true">
+                    <div className={`w-10 h-10 rounded-full text-xs font-semibold flex items-center justify-center ${lead ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'}`} aria-hidden="true">
                       {t.initials}
                     </div>
                     <div>
                       <p className="text-sm font-semibold">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                      <p className={`text-xs ${lead ? 'text-white/80' : 'text-muted-foreground'}`}>{t.role}</p>
                     </div>
                   </figcaption>
                 </figure>
@@ -426,27 +426,27 @@ export default function LandingPage() {
               <div
                 key={plan.name}
                 className={`relative p-8 ${SURFACE} flex flex-col justify-between border transition-transform duration-300 hover:-translate-y-1 motion-reduce:transform-none ${
-                  plan.highlight ? "chrome-stroke [--chrome-fill:hsl(var(--background))] shadow-[0_24px_50px_-28px_hsl(var(--primary)/0.55)]" : "border-border bg-background"
+                  plan.highlight ? "chrome-green text-white shadow-[0_28px_60px_-28px_hsl(var(--primary)/0.7)] lg:-my-3 lg:py-11" : "border-border bg-background"
                 }`}
               >
                 {plan.highlight && (
-                  <span className="absolute top-6 right-6 text-xs font-semibold px-3 py-1 rounded-full chrome-green bg-primary text-primary-foreground">
+                  <span className="absolute top-6 right-6 text-xs font-semibold px-3 py-1 rounded-full bg-white text-[hsl(162_84%_16%)] shadow-sm">
                     Recommended
                   </span>
                 )}
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-display font-semibold text-lg">{plan.name}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{plan.blurb}</p>
+                    <p className={`text-sm mt-1 ${plan.highlight ? 'text-white/85' : 'text-muted-foreground'}`}>{plan.blurb}</p>
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-display font-bold tabular">${plan.price}</span>
-                    <span className="text-sm text-muted-foreground">/ month</span>
+                    <span className={`text-sm ${plan.highlight ? 'text-white/80' : 'text-muted-foreground'}`}>/ month</span>
                   </div>
                   <ul className="space-y-3 text-sm">
                     {plan.features.map((feat) => (
                       <li key={feat} className="flex items-center gap-2.5">
-                        <Check className="w-4 h-4 text-primary shrink-0" />
+                        <Check className={`w-4 h-4 shrink-0 ${plan.highlight ? 'text-white' : 'text-primary'}`} />
                         {feat}
                       </li>
                     ))}
@@ -456,8 +456,8 @@ export default function LandingPage() {
                   href="/signup"
                   className={`mt-8 w-full text-center text-sm font-semibold py-3 rounded-full transition-all active:translate-y-px ${
                     plan.highlight
-                      ? "chrome-green bg-primary text-primary-foreground chrome-sheen"
-                      : "border border-border hover:bg-muted"
+                      ? "chrome-sheen bg-white text-[hsl(162_84%_16%)] shadow-[0_10px_24px_-14px_hsl(165_84%_6%_/_0.8)] hover:bg-white/95"
+                      : "chrome-green chrome-sheen bg-primary text-primary-foreground"
                   }`}
                 >
                   {plan.cta}

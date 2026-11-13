@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { CategoryWheel, softHyphenate } from './category-wheel';
 import {
   Card,
   CardContent,
@@ -90,9 +91,6 @@ const categoryIcons: Record<string, React.ElementType> = {
   Other: MoreHorizontal,
 };
 
-/** Soft hyphens in the longest names, so they wrap with a hyphen in narrow grid cells (shown only when they wrap). */
-const softHyphenate = (name: string) => name.replace("Entertainment", "Entertain\u00ADment").replace("Subscriptions", "Subscrip\u00ADtions");
-
 export function AddTransactionTabs() {
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -122,7 +120,7 @@ export function AddTransactionTabs() {
       toast({
         variant: 'destructive',
         title: 'Invalid Amount',
-        description: 'Please enter a valid amount greater than $0.',
+        description: 'Please enter an amount greater than zero.',
       });
       return;
     }
@@ -147,7 +145,6 @@ export function AddTransactionTabs() {
     setSelectedCategory(null);
   };
 
-  const angleStep = 360 / currentCategories.length;
   const radius = 115; // circle radius
 
   if (!mounted) {
@@ -210,11 +207,8 @@ export function AddTransactionTabs() {
   return (
     <Card className="h-full border border-border/50 bg-card rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-extrabold tracking-tight text-foreground flex flex-wrap items-center justify-between gap-2">
-          <span>Add Transaction</span>
-          <span className="whitespace-nowrap text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-            ✨ Auto-Categorization Active
-          </span>
+        <CardTitle className="text-xl font-extrabold tracking-tight">
+          <span className="text-heading-gradient">Add Transaction</span>
         </CardTitle>
         <CardDescription className="text-xs text-muted-foreground">
           Quickly add a new expense or income.
@@ -241,11 +235,11 @@ export function AddTransactionTabs() {
         </Tabs>
 
         {/* Phones: a grid of category buttons. The wheel needs more room than a phone has. */}
-        <div className="space-y-3 py-4 sm:hidden">
+        <div className="space-y-3 py-4 sm:hidden lg:block xl:hidden">
           <button
             type="button"
             onClick={() => handleCategoryClick('Other')}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 active:scale-[0.98]"
+            className="flex min-h-12 w-full items-center justify-center gap-2 chrome-green chrome-sheen rounded-2xl text-sm font-bold text-white active:scale-[0.98]"
           >
             <Plus className="h-5 w-5" aria-hidden="true" />
             Add {activeTab === 'income' ? 'income' : 'an expense'}
@@ -269,45 +263,11 @@ export function AddTransactionTabs() {
           </ul>
         </div>
 
-        {/* Circular Wheel Dial Interface (640px and up) */}
-        <div className="hidden flex-1 items-center justify-center min-h-[360px] py-6 sm:flex">
-          <div className="relative w-[300px] h-[300px] sm:w-[336px] sm:h-[336px] max-w-full flex items-center justify-center rounded-3xl border border-border/40 bg-muted/10 p-8">
-            {/* Center Big Green Plus Circle */}
-            <div className="absolute w-20 h-20 sm:w-24 sm:h-24 bg-emerald-600 dark:bg-emerald-600 rounded-full flex items-center justify-center shadow-lg shadow-emerald-600/20 hover:scale-105 transition-transform cursor-pointer z-10" role="button" tabIndex={0} aria-label="Add transaction" onClick={() => handleCategoryClick('Other')} onKeyDown={(e) => e.key === 'Enter' && handleCategoryClick('Other')}>
-              <Plus className="h-9 w-9 sm:h-10 sm:w-10 text-white stroke-[2.5]" />
-            </div>
-
-            {/* Orbiting Category Nodes */}
-            {currentCategories.map((category, index) => {
-              const angle = angleStep * index - 90; // Start at top
-              const orbitalRadius = 106; // Adjusted radius for optimal spacing inside 336px container
-              const x = orbitalRadius * Math.cos((angle * Math.PI) / 180);
-              const y = orbitalRadius * Math.sin((angle * Math.PI) / 180);
-              const Icon = categoryIcons[category] || MoreHorizontal;
-
-              return (
-                <div
-                  key={category}
-                  className="absolute flex flex-col items-center justify-center group cursor-pointer"
-                  style={{
-                    transform: `translate(${x}px, ${y}px)`,
-                  }}
-                  onClick={() => handleCategoryClick(category)}
-                >
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="w-11 h-11 rounded-full border border-border/60 bg-card hover:bg-emerald-500/10 hover:border-emerald-600 shadow-sm flex items-center justify-center transition-all duration-200 group-hover:scale-110"
-                  >
-                    <Icon className="h-[18px] w-[18px] text-muted-foreground group-hover:text-emerald-600 transition-colors" />
-                  </Button>
-                  <span className="text-[10px] sm:text-[11px] font-bold text-foreground mt-0.5 tracking-tight group-hover:text-emerald-600 transition-colors whitespace-nowrap">
-                    {category}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+        {/* Circular wheel (640-1023px, where the card is full width, and 1280px up).
+            Positions are percentages of the square, so spacing grows with it and labels never
+            reach the next item; long names wrap with a hyphen. */}
+        <div className="hidden flex-1 items-center justify-center py-6 sm:flex lg:hidden xl:flex">
+          <CategoryWheel categories={currentCategories} icons={categoryIcons} onPick={handleCategoryClick} onAdd={() => handleCategoryClick('Other')} />
         </div>
       </CardContent>
 
@@ -399,7 +359,7 @@ export function AddTransactionTabs() {
             <Button
               type="button"
               onClick={handleAddTransaction}
-              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm"
+              className="rounded-xl chrome-green chrome-sheen text-white text-xs font-bold"
             >
               Add {activeTab === 'income' ? 'Income' : 'Expense'}
             </Button>

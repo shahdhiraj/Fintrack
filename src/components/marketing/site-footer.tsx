@@ -33,12 +33,14 @@ const linkClass = 'inline-flex min-h-9 items-center rounded-md text-muted-foregr
 /** Footer shared by every public page. */
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-card px-4 pb-8 pt-16 sm:px-6 lg:px-8">
+    <footer className="relative isolate overflow-hidden border-t border-border bg-gradient-to-b from-card via-card to-accent/70 px-4 pb-8 pt-16 sm:px-6 lg:px-8">
+      {/* Soft green glow, decorative. */}
+      <div className="pointer-events-none absolute -bottom-40 left-1/2 -z-10 h-80 w-[min(56rem,120%)] -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 pb-12 md:grid-cols-12">
           <div className="col-span-2 space-y-4 md:col-span-5">
             <Link href="/" className="inline-flex min-h-11 items-center gap-2.5 rounded-full" aria-label="FinTrack home">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <span className="chrome-green flex h-8 w-8 items-center justify-center rounded-lg">
                 <Wallet className="h-4 w-4" aria-hidden="true" />
               </span>
               <span className="font-display text-lg font-bold tracking-tight">FinTrack</span>

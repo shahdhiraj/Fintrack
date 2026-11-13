@@ -29,7 +29,7 @@ function TransactionsContent() {
         </div>
         <AddTransactionDialog
           trigger={
-            <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1.5">
+            <Button className="chrome-green chrome-sheen rounded-xl text-white text-xs font-bold gap-1.5">
               <Plus className="w-4 h-4" /> Add Transaction
             </Button>
           }

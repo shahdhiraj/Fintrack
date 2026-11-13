@@ -8,10 +8,14 @@ const WORD = {
   show: { opacity: 1, y: '0em', filter: 'blur(0px)', transition: { duration: 0.6, ease: EASE } },
 };
 
-/** Section heading whose words fade and rise in one after another when it scrolls into view. */
-export function RevealText({ text, className }: { text: string; className?: string }) {
+/**
+ * Section heading whose words fade and rise in one after another when it scrolls into view.
+ * Words carry the green heading gradient, except on headings that are already white.
+ */
+export function RevealText({ text, className, gradient = true }: { text: string; className?: string; gradient?: boolean }) {
   const reduce = useReducedMotion();
-  if (reduce) return <h2 className={className}>{text}</h2>;
+  const tint = gradient && !/\btext-white\b/.test(className ?? '') ? 'text-heading-gradient' : '';
+  if (reduce) return <h2 className={className}><span className={tint}>{text}</span></h2>;
 
   const words = text.split(' ');
   return (
@@ -25,7 +29,7 @@ export function RevealText({ text, className }: { text: string; className?: stri
     >
       {words.map((word, i) => (
         <span key={i} aria-hidden="true">
-          <motion.span className="inline-block" variants={WORD}>
+          <motion.span className={`inline-block ${tint}`} variants={WORD}>
             {word}
           </motion.span>
           {i < words.length - 1 ? ' ' : ''}

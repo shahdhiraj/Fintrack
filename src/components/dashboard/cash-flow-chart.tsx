@@ -1,5 +1,6 @@
 
 import { useMemo, useState } from 'react';
+import { formatMoney, formatMoneyCompact } from '@/lib/currency';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Info, ChevronDown, BarChart3 } from 'lucide-react';
@@ -92,7 +93,7 @@ export function CashFlowChart() {
       <CardContent className="space-y-4 pt-1 flex-1 flex flex-col justify-between">
         <div>
           <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatMoney(total)}
           </span>
 
           {/* Toggle Pills */}
@@ -121,7 +122,7 @@ export function CashFlowChart() {
                 <div className="absolute right-2 top-2 z-10 bg-foreground text-background text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
                   <span>{MONTH_LABELS[currentMonthIndex]} :</span>
                   <span className="text-emerald-400 font-extrabold">
-                    ${currentMonthValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatMoney(currentMonthValue)}
                   </span>
                 </div>
               )}
@@ -134,7 +135,7 @@ export function CashFlowChart() {
                     fontSize={10}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(v) => (Math.abs(v) >= 1000 ? `${Math.round(v / 1000)}k` : `${v}`)}
+                    tickFormatter={(v) => formatMoneyCompact(v).replace(/^(-?)\D*\s?/, '$1')}
                   />
                   <Tooltip
                     cursor={{ fill: 'rgba(5, 150, 105, 0.06)' }}
@@ -142,7 +143,7 @@ export function CashFlowChart() {
                       if (active && payload && payload.length) {
                         return (
                           <div className="bg-popover border border-border text-popover-foreground px-2.5 py-1.5 rounded-lg text-xs font-bold shadow-md">
-                            ${Number(payload[0].value).toLocaleString()}
+                            {formatMoney(Number(payload[0].value))}
                           </div>
                         );
                       }

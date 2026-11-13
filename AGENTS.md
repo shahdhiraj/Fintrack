@@ -12,14 +12,17 @@ Personal budgeting app: **Vite + React 18 + TypeScript**, React Router v6, Tailw
 ## Layout
 - `src/main.tsx`: router; every page in `src/pages/` is lazy-loaded; when the browser is idle it prefetches the likely next pages (public pages for visitors, app pages for signed-in users)
 - `src/components/client-layout.tsx`: providers; `app-shell.tsx` is the sidebar and header
-- `src/context/transaction-context.tsx`: all app data (transactions, bills, wallets, transfers, budgets, feedback, preferences)
+- `src/context/transaction-context.tsx`: all app data (transactions, bills, wallets, transfers, budgets, savings goals + contributions, debts + payments, feedback, preferences). Goals and debts are tracking only: they never move wallet money, except a debt payment saved with "Also add to transactions", which creates (and on delete removes) a linked transaction.
+- Goals, debts and trends maths: `src/lib/goals.ts`, `src/lib/debts.ts`, `src/lib/trends.ts` (pure). UI: Budgets page `?tab=goals` (`src/components/goals/`), `/debts` page, Trends section in Reports.
 - `src/firebase/use-synced-store.tsx`: Firestore-first storage that falls back to localStorage when rules deny a collection, then uploads the local data once access works
 - `src/lib/finance.ts`, `src/lib/budgets.ts`: pure logic (unit-testable, no React/Firebase)
+- Money: always format with `formatMoney` / `formatMoneyRounded` / `formatMoneyCompact` from `src/lib/currency.ts` (re-exported by `@/lib/utils`), never a hard-coded `$` or `Intl` currency. The display currency is a user preference (default Nepalese rupee, "Nrs.", lakh grouping; custom symbols allowed) applied by `TransactionProvider`. Amounts are stored as plain numbers and never converted.
 - Navigation helpers: `@/components/link` (`<Link href>`), `@/components/image`, `@/lib/navigation` (`usePathname`, `useRouter`, `useSearchParams`)
 - `src/seo/pages.ts`: the route registry (title, description, indexable, marketing/auth/app). Used by the router guards (`src/lib/routes.ts`), runtime head tags (`src/seo/route-seo.tsx`) and the build (`vite-plugin-seo.ts`). **A new page needs an entry here and a `<Route>` in `src/main.tsx`.** App routes redirect to /login when signed out; everything else (marketing, auth, unknown URLs) is public.
 - Public pages use `src/components/marketing/marketing-layout.tsx` (skip link, shared header with mobile menu and active states, footer). Homepage section links are `/#why`, `/#pricing`, etc.
 
 ## Notes
+- Bills: a bill's picture (`imageUrl`) is either an https link or a 128px WebP thumbnail made in the browser (`src/lib/bill-image.ts`) and stored in the bill document; there is no file storage bucket. "Scan a bill" uses Tesseract.js (`src/lib/ocr.ts`, loaded only when used) to read the photo on the device; the engine and English language data download from jsDelivr / tessdata.projectnaptha.com on first use. Parsing and the total check are pure functions in `src/lib/bill-parse.ts`.
 - No server code. `src/lib/actions.ts` returns on-device suggestions; a real AI model would need a backend (e.g. a Cloud Function) so the API key is never shipped to browsers.
 - Source files use CRLF line endings.
 

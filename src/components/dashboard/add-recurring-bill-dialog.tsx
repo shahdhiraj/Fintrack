@@ -30,6 +30,9 @@ import { useState, type ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useTransaction } from '@/context/transaction-context';
 import { WalletSelect } from '@/components/wallets/wallet-select';
+import { BillImageField } from '@/components/bills/bill-image-field';
+import { BillScanner, type ScannedBill } from '@/components/bills/bill-scanner';
+import { CATEGORY_ICONS } from '@/lib/sample-data';
 
 /**
  * Add a recurring bill, or edit one when `bill` is given.
@@ -45,6 +48,7 @@ export function AddRecurringBillDialog({ bill, trigger }: { bill?: RecurringBill
   const [frequency, setFrequency] = useState<BillFrequency>('monthly');
   const [walletId, setWalletId] = useState<string | undefined>();
   const [notes, setNotes] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { toast } = useToast();
   const { addRecurringBill, updateRecurringBill, preferences } = useTransaction();
@@ -59,8 +63,17 @@ export function AddRecurringBillDialog({ bill, trigger }: { bill?: RecurringBill
       setDueDate(bill ? bill.dueDate.toDate() : new Date());
       setWalletId(bill ? bill.walletId ?? undefined : preferences.defaultWalletId || undefined);
       setNotes(bill?.notes ?? '');
+      setImageUrl(bill?.imageUrl ?? undefined);
     }
     setOpen(next);
+  };
+
+  // From a scanned bill: keep a name the user already typed; fill the amount and due date.
+  const applyScan = (scan: ScannedBill) => {
+    if (scan.name && !name.trim()) setName(scan.name.slice(0, 80));
+    if (scan.amount && scan.amount > 0) setAmount(String(Math.round(scan.amount * 100) / 100));
+    if (scan.dueDate) setDueDate(scan.dueDate);
+    toast({ title: 'Bill details filled', description: 'Check them before saving.' });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -79,6 +92,7 @@ export function AddRecurringBillDialog({ bill, trigger }: { bill?: RecurringBill
       frequency,
       walletId,
       notes: notes.trim(),
+      imageUrl,
     };
 
     if (bill) {
@@ -109,18 +123,30 @@ export function AddRecurringBillDialog({ bill, trigger }: { bill?: RecurringBill
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4 text-xs">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="bill-name" className="text-right font-bold text-muted-foreground">Name</Label>
-              <Input id="bill-name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3 h-9 text-xs rounded-xl" placeholder="e.g. Netflix, Rent" maxLength={80} required />
+            <BillScanner onApply={applyScan} />
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4 sm:items-start sm:gap-4">
+              <Label className="font-bold text-muted-foreground sm:pt-3 sm:text-right">Picture</Label>
+              <div className="sm:col-span-3">
+                <BillImageField
+                  value={imageUrl}
+                  onChange={setImageUrl}
+                  name={name || 'Bill'}
+                  fallback={<span>{CATEGORY_ICONS[category] ?? '📦'}</span>}
+                />
+              </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="bill-amount" className="text-right font-bold text-muted-foreground">Amount</Label>
-              <Input id="bill-amount" type="number" step="0.01" min="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="col-span-3 h-9 text-xs rounded-xl" placeholder="0.00" required />
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label htmlFor="bill-name" className="font-bold text-muted-foreground sm:text-right">Name</Label>
+              <Input id="bill-name" value={name} onChange={(e) => setName(e.target.value)} className="sm:col-span-3 h-9 text-xs rounded-xl" placeholder="e.g. Netflix, Rent" maxLength={80} required />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right font-bold text-muted-foreground">Repeats</Label>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label htmlFor="bill-amount" className="font-bold text-muted-foreground sm:text-right">Amount</Label>
+              <Input id="bill-amount" type="number" step="0.01" min="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="sm:col-span-3 h-9 text-xs rounded-xl" placeholder="0.00" required />
+            </div>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label className="font-bold text-muted-foreground sm:text-right">Repeats</Label>
               <Select value={frequency} onValueChange={(v: BillFrequency) => setFrequency(v)}>
-                <SelectTrigger className="col-span-3 h-9 text-xs rounded-xl" aria-label="Frequency">
+                <SelectTrigger className="sm:col-span-3 h-9 text-xs rounded-xl" aria-label="Frequency">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
@@ -130,10 +156,10 @@ export function AddRecurringBillDialog({ bill, trigger }: { bill?: RecurringBill
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right font-bold text-muted-foreground">Category</Label>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label className="font-bold text-muted-foreground sm:text-right">Category</Label>
               <Select value={category} onValueChange={(value: Category) => setCategory(value)}>
-                <SelectTrigger className="col-span-3 h-9 text-xs rounded-xl" aria-label="Category">
+                <SelectTrigger className="sm:col-span-3 h-9 text-xs rounded-xl" aria-label="Category">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
@@ -143,15 +169,15 @@ export function AddRecurringBillDialog({ bill, trigger }: { bill?: RecurringBill
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right font-bold text-muted-foreground">Pay from</Label>
-              <WalletSelect value={walletId} onChange={setWalletId} className="col-span-3" />
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label className="font-bold text-muted-foreground sm:text-right">Pay from</Label>
+              <WalletSelect value={walletId} onChange={setWalletId} className="sm:col-span-3" />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right font-bold text-muted-foreground">{isEdit ? 'Next due' : 'First due'}</Label>
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label className="font-bold text-muted-foreground sm:text-right">{isEdit ? 'Next due' : 'First due'}</Label>
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn('col-span-3 justify-start text-left font-normal h-9 text-xs rounded-xl', !dueDate && 'text-muted-foreground')}>
+                  <Button variant="outline" className={cn('sm:col-span-3 justify-start text-left font-normal h-9 text-xs rounded-xl', !dueDate && 'text-muted-foreground')}>
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dueDate ? format(dueDate, 'PPP') : <span>Pick a date</span>}
                   </Button>
@@ -169,14 +195,14 @@ export function AddRecurringBillDialog({ bill, trigger }: { bill?: RecurringBill
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="bill-notes" className="text-right font-bold text-muted-foreground pt-2">Notes</Label>
-              <Textarea id="bill-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="col-span-3 text-xs rounded-xl min-h-[60px]" placeholder="Optional — account number, reminder…" maxLength={300} />
+            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-4 sm:items-start sm:gap-4">
+              <Label htmlFor="bill-notes" className="font-bold text-muted-foreground sm:pt-2 sm:text-right">Notes</Label>
+              <Textarea id="bill-notes" value={notes} onChange={(e) => setNotes(e.target.value)} className="sm:col-span-3 text-xs rounded-xl min-h-[60px]" placeholder="Optional — account number, reminder…" maxLength={300} />
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} className="rounded-xl text-xs font-bold">Cancel</Button>
-            <Button type="submit" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">
+            <Button type="submit" className="rounded-xl chrome-green chrome-sheen text-white font-bold text-xs">
               {isEdit ? 'Save Changes' : 'Schedule Bill'}
             </Button>
           </DialogFooter>

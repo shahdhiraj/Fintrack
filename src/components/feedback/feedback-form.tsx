@@ -140,7 +140,7 @@ export function FeedbackForm({
           required
         />
       </div>
-      <Button type="submit" disabled={sending} className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-2">
+      <Button type="submit" disabled={sending} className="w-full sm:w-auto rounded-xl chrome-green chrome-sheen text-white text-xs font-bold gap-2">
         {sending && <Loader2 className="w-4 h-4 animate-spin" />}
         {type === 'support' ? 'Send request' : 'Send feedback'}
       </Button>

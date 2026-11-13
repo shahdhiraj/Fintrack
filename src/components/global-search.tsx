@@ -1,5 +1,6 @@
 
 import * as React from 'react';
+import { formatMoney } from '@/lib/currency';
 import { useRouter } from '@/lib/navigation';
 import {
   Search,
@@ -38,7 +39,7 @@ const iconForType = {
 } as const;
 
 function formatCurrency(n: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+  return formatMoney(n);
 }
 
 export function GlobalSearch({

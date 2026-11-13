@@ -11,7 +11,7 @@ import {
   Loader2, 
   Sun, 
   Moon, 
-  Flower 
+  Wallet
 } from 'lucide-react';
 
 export default function SignupPage() {
@@ -110,8 +110,8 @@ export default function SignupPage() {
           
           {/* Form Header */}
           <div className="text-center space-y-2">
-            <div className="w-[48px] h-[48px] rounded-[12px] bg-[#eef1e7] text-[#23261f] flex items-center justify-center mx-auto shadow-md mb-4 transition-transform duration-300 hover:scale-105">
-              <Flower className="w-5 h-5" />
+            <div className="w-[48px] h-[48px] rounded-[12px] chrome-green flex items-center justify-center mx-auto shadow-md mb-4 transition-transform duration-300 hover:scale-105">
+              <Wallet className="w-5 h-5" aria-hidden="true" />
             </div>
             <h1 className="text-2xl font-extrabold tracking-tight">Create an account</h1>
             <p className={`text-xs ${isLight ? "text-slate-500" : "text-muted-foreground"}`}>
@@ -206,7 +206,7 @@ export default function SignupPage() {
             <button 
               type="submit" 
               disabled={loading}
-              className={`w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-[10px] py-3.5 text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/20 active:scale-[0.98] ${
+              className={`w-full chrome-green chrome-sheen text-white rounded-[10px] py-3.5 text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 active:scale-[0.98] ${
                 loading ? "cursor-not-allowed opacity-80" : ""
               }`}
             >

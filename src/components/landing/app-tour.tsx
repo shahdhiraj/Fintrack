@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeftRight, ArrowRight, BarChart3, LayoutGrid, Repeat, Target, Wallet, type LucideIcon } from 'lucide-react';
+import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, BarChart3, HandCoins, LayoutGrid, LineChart, PiggyBank, Repeat, Target, Wallet, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Reveal, RevealText } from './reveal';
 
@@ -34,12 +34,28 @@ const AREAS: Area[] = [
     points: ['15 categories', 'Monthly limits', 'Over-limit alerts'],
   },
   {
+    id: 'goals',
+    label: 'Savings Goals',
+    icon: PiggyBank,
+    title: 'Save for something specific',
+    body: 'Set a target and a date. FinTrack works out how much to put aside each month and tells you if you are on track.',
+    points: ['Target and date', 'Monthly amount needed', 'On-track check'],
+  },
+  {
     id: 'wallets',
     label: 'Wallets',
     icon: Wallet,
     title: 'All your accounts, one total',
     body: 'Track every account, card and cash pocket, and move money between them without losing track of the balance.',
     points: ['Multiple wallets', 'Transfers', 'Running balances'],
+  },
+  {
+    id: 'debts',
+    label: 'Debts & Loans',
+    icon: HandCoins,
+    title: 'What you owe, and what you are owed',
+    body: 'Track a loan you are paying off or money you lent a friend. Record each repayment and see what is left and when it is due.',
+    points: ['I owe / owed to me', 'Repayment history', 'Due-date status'],
   },
   {
     id: 'recurring',
@@ -56,6 +72,14 @@ const AREAS: Area[] = [
     title: 'See where the money went',
     body: 'Compare income with expenses month by month, and break your spending down by category to find what keeps growing.',
     points: ['Income vs expense', 'Category breakdown', 'Month comparison'],
+  },
+  {
+    id: 'trends',
+    label: 'Trends',
+    icon: LineChart,
+    title: 'Six or twelve months at a glance',
+    body: 'See how income and spending moved over time, which month went best, and which categories are creeping up.',
+    points: ['6 or 12 months', 'Savings rate', 'Category direction'],
   },
 ];
 
@@ -132,9 +156,9 @@ function Preview({ id }: { id: string }) {
       return (
         <div className="space-y-5">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Tile label="Income" value="$8,450" />
-            <Tile label="Expenses" value="$3,120" />
-            <Tile label="Kept" value="$5,330" strong />
+            <Tile label="Income" value="Nrs. 8,450" />
+            <Tile label="Expenses" value="Nrs. 3,120" />
+            <Tile label="Kept" value="Nrs. 5,330" strong />
           </div>
           <Bars pairs={[[42], [55], [48], [70], [62], [88]]} />
         </div>
@@ -142,28 +166,28 @@ function Preview({ id }: { id: string }) {
     case 'transactions':
       return (
         <div className="divide-y divide-border">
-          <Row left="Salary" sub="Main Checking" right="+$4,200.00" tone="in" />
-          <Row left="Rent" sub="Housing, Main Checking" right="-$1,650.00" />
-          <Row left="Weekly shop" sub="Groceries, Visa Credit Card" right="-$86.40" />
-          <Row left="Bus pass" sub="Transport, Main Checking" right="-$42.00" />
+          <Row left="Salary" sub="Main Checking" right="+Nrs. 4,200.00" tone="in" />
+          <Row left="Rent" sub="Housing, Main Checking" right="-Nrs. 1,650.00" />
+          <Row left="Weekly shop" sub="Groceries, Visa Credit Card" right="-Nrs. 86.40" />
+          <Row left="Bus pass" sub="Transport, Main Checking" right="-Nrs. 42.00" />
         </div>
       );
     case 'budgets':
       return (
         <div className="space-y-5">
-          <Meter label="Housing" amount="$1,650 of $1,800" pct={92} />
-          <Meter label="Groceries" amount="$320 of $500" pct={64} />
-          <Meter label="Dining Out" amount="$95 of $250" pct={38} />
-          <Meter label="Transport" amount="$318 of $300" pct={106} over />
+          <Meter label="Housing" amount="Nrs. 1,650 of Nrs. 1,800" pct={92} />
+          <Meter label="Groceries" amount="Nrs. 320 of Nrs. 500" pct={64} />
+          <Meter label="Dining Out" amount="Nrs. 95 of Nrs. 250" pct={38} />
+          <Meter label="Transport" amount="Nrs. 318 of Nrs. 300" pct={106} over />
         </div>
       );
     case 'wallets':
       return (
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Tile label="Main Checking" value="$4,280" strong />
-            <Tile label="Visa Credit Card" value="-$612" />
-            <Tile label="Savings" value="$16,450" />
+            <Tile label="Main Checking" value="Nrs. 4,280" strong />
+            <Tile label="Visa Credit Card" value="-Nrs. 612" />
+            <Tile label="Savings" value="Nrs. 16,450" />
           </div>
           <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-border px-4 py-3 text-sm">
             <span className="flex min-w-0 items-center gap-2">
@@ -171,7 +195,43 @@ function Preview({ id }: { id: string }) {
               <ArrowRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
               <span className="truncate">Savings</span>
             </span>
-            <span className="shrink-0 font-semibold tabular">$200.00</span>
+            <span className="shrink-0 font-semibold tabular">Nrs. 200.00</span>
+          </div>
+        </div>
+      );
+    case 'goals':
+      return (
+        <div className="space-y-5">
+          <Meter label="New laptop: Nrs. 55,000 of Nrs. 1,50,000" amount="37%" pct={37} />
+          <Meter label="Emergency fund: Nrs. 1,80,000 of Nrs. 6,00,000" amount="30%" pct={30} />
+          <Meter label="Pokhara trip: Nrs. 15,000 of Nrs. 60,000" amount="25%" pct={25} />
+          <p className="rounded-2xl bg-primary/10 px-4 py-3 text-sm font-medium text-primary">Save Nrs. 23,750 a month to buy the laptop by March.</p>
+        </div>
+      );
+    case 'debts':
+      return (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-3 rounded-2xl border border-border p-4">
+              <ArrowUpRight className="h-5 w-5 shrink-0 text-rose-500" aria-hidden="true" />
+              <div><p className="text-xs text-muted-foreground">You owe</p><p className="font-display text-xl font-bold tabular">Nrs. 1,80,000</p></div>
+            </div>
+            <div className="flex items-center gap-3 rounded-2xl border border-border p-4">
+              <ArrowDownLeft className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+              <div><p className="text-xs text-muted-foreground">Owed to you</p><p className="font-display text-xl font-bold tabular">Nrs. 20,000</p></div>
+            </div>
+          </div>
+          <Meter label="Scooter loan: 25% repaid" amount="Nrs. 1,80,000 left" pct={25} />
+          <Meter label="Lent to Sita: due in 5 days" amount="Nrs. 20,000 left" pct={33} />
+        </div>
+      );
+    case 'trends':
+      return (
+        <div className="space-y-4">
+          <Bars pairs={[[58, 40], [60, 44], [62, 50], [61, 47], [66, 52], [70, 49]]} />
+          <div className="divide-y divide-border">
+            <Row left="Groceries" sub="Latest month vs earlier average" right="+50%" tone="over" />
+            <Row left="Dining Out" sub="Latest month vs earlier average" right="−18%" tone="in" />
           </div>
         </div>
       );
@@ -179,9 +239,9 @@ function Preview({ id }: { id: string }) {
       return (
         <div className="divide-y divide-border">
           <Row left="Rent" sub="Monthly, Main Checking" right="Due tomorrow" tone="over" />
-          <Row left="Internet" sub="Monthly, $59.98" right="In 3 days" />
-          <Row left="Streaming" sub="Monthly, $15.49" right="In 11 days" />
-          <Row left="Gym" sub="Monthly, $32.00" right="Paid" tone="in" />
+          <Row left="Internet" sub="Monthly, Nrs. 59.98" right="In 3 days" />
+          <Row left="Streaming" sub="Monthly, Nrs. 15.49" right="In 11 days" />
+          <Row left="Gym" sub="Monthly, Nrs. 32.00" right="Paid" tone="in" />
         </div>
       );
     default:
@@ -211,7 +271,7 @@ export function AppTour() {
           <div className="space-y-4">
             <RevealText
               className="font-display font-bold tracking-tight text-4xl sm:text-5xl leading-[1.08]"
-              text="Six screens. Each one does one job."
+              text="Nine screens. Each one does one job."
             />
             <Reveal as="p" className="text-muted-foreground leading-relaxed max-w-md">
               Pick a part of the app to see what it is for.
@@ -221,7 +281,7 @@ export function AppTour() {
           <div
             role="tablist"
             aria-label="Parts of the app"
-            className="flex snap-x scroll-px-4 gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 [mask-image:linear-gradient(90deg,transparent,black_1rem,black_calc(100%-3rem),transparent)] lg:mx-0 lg:px-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:[mask-image:none]"
+            className="flex snap-x scroll-px-4 gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 [mask-image:linear-gradient(90deg,transparent,black_1rem,black_calc(100%-3rem),transparent)] lg:mx-0 lg:px-0 lg:flex-col lg:items-start lg:gap-1 lg:overflow-visible lg:[mask-image:none]"
           >
             {AREAS.map((a) => {
               const Icon = a.icon;

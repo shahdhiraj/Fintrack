@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { format } from 'date-fns';
 import { sendPasswordResetEmail, signOut, updateProfile } from 'firebase/auth';
@@ -17,6 +17,8 @@ import { useDemoMode } from '@/hooks/use-demo-mode';
 import { useToast } from '@/hooks/use-toast';
 import { download } from '@/lib/export';
 import { WalletSelect } from '@/components/wallets/wallet-select';
+import { CurrencySetting } from '@/components/settings/currency-setting';
+import { SettingsNav } from '@/components/settings/settings-nav';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { toCsv } from '@/lib/finance';
 import { cn } from '@/lib/utils';
@@ -30,12 +32,13 @@ const SECTIONS = [
 ];
 
 export default function SettingsPage() {
+  const bottomRef = useRef<HTMLDivElement>(null);
   const { user } = useUser();
   const auth = useAuth();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   const demo = useDemoMode();
-  const { preferences, updatePreferences, transactions, recurringBills, wallets, transfers, feedback, deleteAllData } = useTransaction();
+  const { preferences, updatePreferences, transactions, recurringBills, wallets, transfers, feedback, deleteAllData, goals, goalContributions, debts, debtPayments } = useTransaction();
 
   const [displayName, setDisplayName] = useState('');
   const [savingName, setSavingName] = useState(false);
@@ -101,6 +104,10 @@ export default function SettingsPage() {
       recurringBills: recurringBills.map((b) => ({ ...b, dueDate: ts(b.dueDate), lastPaidAt: ts(b.lastPaidAt) })),
       wallets: wallets.map((w) => ({ ...w, createdAt: ts(w.createdAt) })),
       walletTransfers: transfers.map((t) => ({ ...t, date: ts(t.date) })),
+      savingsGoals: goals.map((g) => ({ ...g, targetDate: ts(g.targetDate), createdAt: ts(g.createdAt) })),
+      goalContributions: goalContributions.map((c) => ({ ...c, date: ts(c.date) })),
+      debts: debts.map((d) => ({ ...d, startDate: ts(d.startDate), dueDate: ts(d.dueDate), createdAt: ts(d.createdAt) })),
+      debtPayments: debtPayments.map((p) => ({ ...p, date: ts(p.date) })),
       preferences,
     };
     download(`fintrack-backup-${stamp}.json`, JSON.stringify(data, null, 2), 'application/json');
@@ -111,7 +118,7 @@ export default function SettingsPage() {
     setDeleting(true);
     try {
       await deleteAllData();
-      toast({ title: 'All data deleted', description: 'Your transactions, bills, wallets and transfers were removed.' });
+      toast({ title: 'All data deleted', description: 'Your transactions, bills, wallets, transfers, goals and debts were removed.' });
     } catch (error) {
       toast({ variant: 'destructive', title: 'Delete failed', description: (error as Error).message });
     } finally {
@@ -130,17 +137,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
-        <nav className="hidden lg:block">
-          <ul className="sticky top-20 space-y-1">
-            {SECTIONS.map((s) => (
-              <li key={s.id}>
-                <a href={`#${s.id}`} className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground">
-                  <s.icon className="w-4 h-4" /> {s.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <SettingsNav sections={SECTIONS} bottomRef={bottomRef} />
 
         <div className="space-y-5">
           {/* Profile */}
@@ -155,7 +152,7 @@ export default function SettingsPage() {
                   <Label htmlFor="display-name" className="text-xs font-bold">Display name</Label>
                   <Input id="display-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={50} className="h-9 rounded-xl" />
                 </div>
-                <Button type="submit" disabled={savingName || displayName.trim() === (user?.displayName ?? '')} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-2">
+                <Button type="submit" disabled={savingName || displayName.trim() === (user?.displayName ?? '')} className="rounded-xl chrome-green chrome-sheen text-white text-xs font-bold gap-2">
                   {savingName && <Loader2 className="w-4 h-4 animate-spin" />} Save
                 </Button>
               </form>
@@ -252,7 +249,7 @@ export default function SettingsPage() {
           <Card id="preferences" className="rounded-2xl border-border/50 scroll-mt-20">
             <CardHeader>
               <CardTitle className="text-base">Preferences</CardTitle>
-              <CardDescription className="text-xs">Defaults used when you add new records.</CardDescription>
+              <CardDescription className="text-xs">Defaults for new records, and how amounts are shown.</CardDescription>
             </CardHeader>
             <CardContent>
               <SettingRow label="Default wallet" description="New transactions and bills use this wallet unless you choose another.">
@@ -262,6 +259,14 @@ export default function SettingsPage() {
                   className="w-48"
                 />
               </SettingRow>
+              <Separator className="my-5" />
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold">Currency</h3>
+                <p className="text-xs text-muted-foreground">How amounts are shown across the app, reports and exports.</p>
+              </div>
+              <div className="mt-3">
+                <CurrencySetting value={preferences.currency} onChange={(currency) => updatePreferences({ currency })} />
+              </div>
             </CardContent>
           </Card>
 
@@ -272,13 +277,15 @@ export default function SettingsPage() {
               <CardDescription className="text-xs">Export, demo data and deletion.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
                 {[
                   ['Transactions', transactions.length],
                   ['Bills', recurringBills.length],
                   ['Wallets', wallets.length],
                   ['Transfers', transfers.length],
                   ['Feedback', feedback.length],
+                  ['Goals', goals.length],
+                  ['Debts', debts.length],
                 ].map(([label, n]) => (
                   <div key={label} className="rounded-xl bg-muted/40 p-3">
                     <p className="text-lg font-extrabold tabular-nums">{n}</p>
@@ -316,8 +323,8 @@ export default function SettingsPage() {
                   description={
                     <>
                       <p>
-                        This permanently deletes {transactions.length} transactions, {recurringBills.length} bills, {wallets.length} wallets and{' '}
-                        {transfers.length} transfers. Your account and feedback are kept.
+                        This permanently deletes {transactions.length} transactions, {recurringBills.length} bills, {wallets.length} wallets,{' '}
+                        {transfers.length} transfers, {goals.length} goals and {debts.length} debts. Your account and feedback are kept.
                       </p>
                       <p>Consider exporting a JSON backup first.</p>
                     </>
@@ -326,7 +333,7 @@ export default function SettingsPage() {
                   actionLabel="Delete everything"
                   onConfirm={wipe}
                   trigger={
-                    <Button variant="outline" className="rounded-xl text-xs gap-1.5 text-rose-600 border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-600" disabled={deleting}>
+                    <Button variant="outline" className="rounded-xl text-xs gap-1.5 text-rose-600 border-rose-500/40 bg-gradient-to-b from-card to-rose-500/10 hover:to-rose-500/20 hover:text-rose-600" disabled={deleting}>
                       {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />} Delete all
                     </Button>
                   }
@@ -334,6 +341,8 @@ export default function SettingsPage() {
               </SettingRow>
             </CardContent>
           </Card>
+          {/* Marks the end of the page for the section menu. */}
+          <div ref={bottomRef} aria-hidden="true" className="h-px" />
         </div>
       </div>
     </div>

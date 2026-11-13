@@ -1,7 +1,10 @@
 
 import { useCallback, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { PiggyBank } from 'lucide-react';
+import { GoalsPanel } from '@/components/goals/goals-panel';
 import { addMonths, differenceInCalendarDays, endOfMonth, format, startOfMonth } from 'date-fns';
-import { ChevronLeft, ChevronRight, DollarSign, Target, TrendingDown, Gauge } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Banknote, Target, TrendingDown, Gauge } from 'lucide-react';
 import { useTransaction } from '@/context/transaction-context';
 import { BudgetList, type BudgetRow } from '@/components/budgets/budget-list';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,7 +21,11 @@ type Filter = 'all' | BudgetStatus;
 const BUDGET_CATEGORIES = categories.filter((c) => !(INCOME_CATEGORIES as readonly string[]).includes(c));
 
 export default function BudgetsPage() {
-  const { transactions, budgets, setBudgetLimit } = useTransaction();
+  const { transactions, budgets, setBudgetLimit, goals } = useTransaction();
+  // ?tab=goals opens the goals tab (linkable from anywhere).
+  const [params, setParams] = useSearchParams();
+  const view = params.get('tab') === 'goals' ? 'goals' : 'budgets';
+  const setView = (v: string) => setParams(v === 'goals' ? { tab: 'goals' } : {}, { replace: true });
   const { toast } = useToast();
   const now = useNow(60_000);
   const currentKey = monthKey(now);
@@ -81,9 +88,13 @@ export default function BudgetsPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Budgets & Goals</h1>
-          <p className="text-sm text-muted-foreground">Monthly limits per category. A limit stays in place for later months until you change it.</p>
+          <p className="text-sm text-muted-foreground">
+            {view === 'goals'
+              ? 'Save towards things you want, and see how much to put aside each month.'
+              : 'Monthly limits per category. A limit stays in place for later months until you change it.'}
+          </p>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className={cn('flex items-center gap-1.5', view === 'goals' && 'hidden')}>
           <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => setOffset((o) => o - 1)} aria-label="Previous month">
             <ChevronLeft className="w-4 h-4" />
           </Button>
@@ -99,11 +110,27 @@ export default function BudgetsPage() {
         </div>
       </div>
 
+      <Tabs value={view} onValueChange={setView}>
+        <TabsList className="h-11 rounded-xl p-1">
+          <TabsTrigger value="budgets" className="h-9 gap-1.5 rounded-lg px-4 text-sm">
+            <Target className="h-4 w-4" aria-hidden="true" /> Monthly budgets
+          </TabsTrigger>
+          <TabsTrigger value="goals" className="h-9 gap-1.5 rounded-lg px-4 text-sm">
+            <PiggyBank className="h-4 w-4" aria-hidden="true" /> Savings goals
+            {goals.length > 0 && <span className="rounded-full bg-primary/15 px-1.5 text-[11px] font-bold text-primary">{goals.length}</span>}
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {view === 'goals' ? (
+        <GoalsPanel />
+      ) : (
+      <>
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <Stat icon={Target} label="Total budget" value={formatMoney(totals.cap)} hint={`${rows.length} categories`} tone="emerald" />
         <Stat icon={TrendingDown} label="Spent" value={formatMoney(totals.spent)} hint={`${totals.pct}% of budget`} tone="amber" />
         <Stat
-          icon={DollarSign}
+          icon={Banknote}
           label="Remaining"
           value={formatMoney(totals.remaining)}
           hint={isCurrent ? `${formatMoney(totals.perDay)}/day for ${totals.daysLeft} day${totals.daysLeft === 1 ? '' : 's'}` : isFuture ? 'Upcoming month' : 'Month closed'}
@@ -128,6 +155,8 @@ export default function BudgetsPage() {
       </Tabs>
 
       <BudgetList rows={visible} onSave={onSave} editable />
+      </>
+      )}
     </div>
   );
 }

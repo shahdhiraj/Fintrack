@@ -125,7 +125,7 @@ export function WalletDialog({ wallet, trigger }: { wallet?: Wallet; trigger: Re
 
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} className="rounded-xl text-xs font-bold">Cancel</Button>
-            <Button type="submit" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+            <Button type="submit" className="rounded-xl chrome-green chrome-sheen text-white text-xs font-bold">
               {wallet ? 'Save Changes' : 'Create Wallet'}
             </Button>
           </DialogFooter>
@@ -252,7 +252,7 @@ export function TransferDialog({ trigger, defaultFromId }: { trigger: ReactNode;
 
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} className="rounded-xl text-xs font-bold">Cancel</Button>
-            <Button type="submit" disabled={wallets.length < 2} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+            <Button type="submit" disabled={wallets.length < 2} className="rounded-xl chrome-green chrome-sheen text-white text-xs font-bold">
               Transfer
             </Button>
           </DialogFooter>

@@ -56,10 +56,7 @@ export function NewsletterSection() {
         {/* Soft light pools and a faint grid so the gradient has depth. */}
         <div className="pointer-events-none absolute -right-24 -top-32 -z-10 h-80 w-80 rounded-full bg-[hsl(148_70%_60%_/_0.35)] blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute -bottom-40 -left-20 -z-10 h-80 w-80 rounded-full bg-[hsl(165_84%_8%_/_0.5)] blur-3xl" aria-hidden="true" />
-        <div
-          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.12] [background-image:linear-gradient(white_1px,transparent_1px),linear-gradient(90deg,white_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_70%_80%_at_70%_40%,black,transparent)]"
-          aria-hidden="true"
-        />
+        <div className="banner-grid" aria-hidden="true" />
         <div className="lg:col-span-6 space-y-4">
           <RevealText
             className="font-display font-bold tracking-tight text-3xl sm:text-4xl leading-[1.1] text-white"

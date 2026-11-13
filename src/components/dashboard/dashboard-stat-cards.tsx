@@ -6,6 +6,7 @@ import { useTodayKey } from '@/hooks/use-now';
 import { TrendingDown, Zap, Calendar } from 'lucide-react';
 import { CATEGORY_ICONS } from '@/lib/sample-data';
 import { Category } from '@/lib/types';
+import { formatMoney } from '@/lib/currency';
 
 export function DashboardStatCards() {
   const { transactions } = useTransaction();
@@ -65,12 +66,7 @@ export function DashboardStatCards() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, todayKey]);
 
-  const formatCurrency = (val: number) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 2,
-    }).format(val);
+  const formatCurrency = (val: number) => formatMoney(val);
 
   return (
     <div className="grid gap-5 grid-cols-1 md:grid-cols-3">

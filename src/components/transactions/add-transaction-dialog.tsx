@@ -106,11 +106,11 @@ export function AddTransactionDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger ?? (isCollapsed ? (
-          <Button className="w-10 h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm flex items-center justify-center p-0 mx-auto transition-all" title="Add Transaction">
+          <Button className="chrome-green chrome-sheen w-10 h-10 text-white font-bold rounded-xl shadow-sm flex items-center justify-center p-0 mx-auto transition-all" title="Add Transaction">
             <Plus className="w-5 h-5" />
           </Button>
         ) : (
-          <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-10 shadow-sm gap-2 text-xs transition-all">
+          <Button className="chrome-green chrome-sheen w-full text-white font-bold rounded-xl h-10 shadow-sm gap-2 text-xs transition-all">
             <Plus className="w-4 h-4" />
             Add Transaction
           </Button>
@@ -208,7 +208,7 @@ export function AddTransactionDialog({
             <Button type="button" variant="outline" onClick={() => setOpen(false)} className="rounded-xl text-xs font-bold">
               Cancel
             </Button>
-            <Button type="submit" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">
+            <Button type="submit" className="rounded-xl chrome-green chrome-sheen text-white font-bold text-xs">
               {isEdit ? 'Save Changes' : 'Save Transaction'}
             </Button>
           </DialogFooter>

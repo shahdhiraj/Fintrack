@@ -5,6 +5,7 @@
 import { getDate, getDaysInMonth } from 'date-fns';
 import type { Budget, Category, Transaction } from '@/lib/types';
 import { budgetStatus, effectiveLimit, INCOME_CATEGORIES, monthKey } from '@/lib/budgets';
+import { formatMoneyRounded } from '@/lib/currency';
 
 export type InsightTone = 'alert' | 'warn' | 'good' | 'tip';
 
@@ -43,7 +44,8 @@ const DISCRETIONARY: Category[] = ['Entertainment', 'Shopping', 'Dining Out', 'S
 const FIXED: Category[] = ['Housing', 'Utilities', 'Subscriptions', 'Education', 'Investments'];
 const TONE_ORDER: Record<InsightTone, number> = { alert: 0, warn: 1, tip: 2, good: 3 };
 
-const usd = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+// Whole units in the user's currency, e.g. "Nrs. 4,412".
+const usd = (n: number) => formatMoneyRounded(n);
 const pct = (n: number) => `${Math.round(n)}%`;
 
 export function buildMonthReport(input: {

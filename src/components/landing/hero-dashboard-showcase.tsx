@@ -1,3 +1,4 @@
+import { formatMoney } from '@/lib/currency';
 import {
   useCallback,
   useEffect,
@@ -129,7 +130,7 @@ const INITIAL_BUDGETS: Budget[] = [
   { name: 'Transport', emoji: '🚗', spent: 136.4, limit: 300 },
 ];
 const DEFAULT_LIMITS = Object.fromEntries(INITIAL_BUDGETS.map((b) => [b.name, b.limit]));
-// Spending in categories without a budget, so the dashboard total starts at $4,412.16.
+// Spending in categories without a budget, so the dashboard total starts at Nrs. 4,412.16.
 const UNBUDGETED_SPEND = 59.98;
 const DAYS_LEFT = 19;
 
@@ -198,8 +199,8 @@ const MONTHS = ['September 2026', 'October 2026', 'November 2026', 'December 202
 
 /* --------------------------------------------------------------- helpers */
 
-const money = (v: number, decimals = 2) =>
-  `$${Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`;
+// Sample amounts in the active currency (Nrs. by default). Sign is added by callers.
+const money = (v: number, decimals = 2) => formatMoney(Math.abs(v), { decimals });
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const TAP = { scale: 0.94 };
@@ -1041,7 +1042,7 @@ function BudgetCard({
                 onClick={() => step(-25)}
                 disabled={b.limit <= 25}
                 className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-40"
-                aria-label={`Lower ${b.name} limit by $25`}
+                aria-label={`Lower ${b.name} limit by Nrs. 25`}
               >
                 <Minus className="h-3 w-3" />
               </motion.button>
@@ -1050,7 +1051,7 @@ function BudgetCard({
                 whileTap={{ scale: 0.8 }}
                 onClick={() => step(25)}
                 className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                aria-label={`Raise ${b.name} limit by $25`}
+                aria-label={`Raise ${b.name} limit by Nrs. 25`}
               >
                 <Plus className="h-3 w-3" />
               </motion.button>
@@ -1558,7 +1559,7 @@ function ToneIcon({ tone }: { tone: 'ok' | 'warn' | 'info' }) {
   );
 }
 
-/** Smallest $25 step that covers the overspend, and the budget with the most room to give it. */
+/** Smallest Nrs. 25 step that covers the overspend, and the budget with the most room to give it. */
 function coverPlan(list: Budget[], name: string) {
   const target = list.find((b) => b.name === name);
   if (!target || target.spent <= target.limit) return null;
@@ -1858,7 +1859,7 @@ export function HeroDashboardShowcase() {
         };
       });
     const groceries = budgets.find((b) => b.name === 'Groceries');
-    const extra: Notice[] = [{ id: 'salary', title: 'Salary landed', body: '+$5,200.00 added to Main Checking.', tone: 'ok', tab: 'transactions', target: SALARY_TXN_ID }];
+    const extra: Notice[] = [{ id: 'salary', title: 'Salary landed', body: '+Nrs. 5,200.00 added to Main Checking.', tone: 'ok', tab: 'transactions', target: SALARY_TXN_ID }];
     if (groceries && groceries.spent <= groceries.limit)
       extra.unshift({
         id: 'groceries',
@@ -1963,7 +1964,7 @@ export function HeroDashboardShowcase() {
             {/* Sidebar (tablet and up), mirrors the real app */}
             <nav className="hidden w-60 shrink-0 flex-col border-r border-border bg-card md:flex" aria-label="Demo sections">
               <div className="flex items-center gap-2.5 px-4 pb-3 pt-4">
-                <motion.span whileHover={{ rotate: -8, scale: 1.08 }} className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <motion.span whileHover={{ rotate: -8, scale: 1.08 }} className="flex h-9 w-9 items-center justify-center rounded-lg chrome-green">
                   <Wallet className="h-4 w-4" />
                 </motion.span>
                 <span className="font-display text-lg font-bold tracking-tight">FinTrack</span>

@@ -127,7 +127,10 @@ export default function HelpPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-5">
-      <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-500 text-white p-6 sm:p-8">
+      <div className="chrome-green relative isolate overflow-hidden rounded-2xl text-white p-6 sm:p-8">
+        {/* Soft highlight in the corner, decorative. */}
+        <div className="pointer-events-none absolute -right-20 -top-24 -z-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
+        <div className="banner-grid" aria-hidden="true" />
         <h1 className="text-2xl font-extrabold tracking-tight">How can we help?</h1>
         <p className="text-sm text-white/85 mt-1">Search the FAQ, browse guides, or send us a message.</p>
         <div className="relative mt-4 max-w-lg">

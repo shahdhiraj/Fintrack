@@ -38,7 +38,7 @@ export const PAGES: PageMeta[] = [
     kind: 'marketing',
     title: 'Features: budgets, wallets, bills and reports | FinTrack',
     description:
-      'Everything FinTrack does: transactions, monthly budgets per category, wallets and transfers, recurring bill reminders, monthly reports with suggestions, and CSV, JSON or PDF export.',
+      'Everything FinTrack does: transactions, monthly budgets, savings goals, wallets, recurring bills, debts and loans, monthly reports and trends, and CSV, JSON or PDF export.',
     index: true,
   },
   {
@@ -59,6 +59,7 @@ export const PAGES: PageMeta[] = [
   { path: '/wallets', kind: 'app', title: 'Wallets | FinTrack', description: DEFAULT_DESCRIPTION, index: false },
   { path: '/reports', kind: 'app', title: 'Reports | FinTrack', description: DEFAULT_DESCRIPTION, index: false },
   { path: '/recurring', kind: 'app', title: 'Recurring Bills | FinTrack', description: DEFAULT_DESCRIPTION, index: false },
+  { path: '/debts', kind: 'app', title: 'Debts & Loans | FinTrack', description: DEFAULT_DESCRIPTION, index: false },
   { path: '/feedback', kind: 'app', title: 'Feedback | FinTrack', description: DEFAULT_DESCRIPTION, index: false },
   { path: '/settings', kind: 'app', title: 'Settings | FinTrack', description: DEFAULT_DESCRIPTION, index: false },
   { path: '/help', kind: 'app', title: 'Help Desk | FinTrack', description: DEFAULT_DESCRIPTION, index: false },

@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { formatMoney } from '@/lib/currency';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { Pause, Play, RotateCcw } from 'lucide-react';
 import { Player, type PlayerRef } from '@remotion/player';
@@ -94,7 +95,7 @@ function SetLimits() {
         return (
           <Rise key={name} delay={start} className={ROW}>
             <span className="font-medium text-foreground">{name}</span>
-            <span className="font-semibold text-foreground tabular">${shown.toLocaleString('en-US')}</span>
+            <span className="font-semibold text-foreground tabular">{formatMoney(shown, { decimals: 0 })}</span>
           </Rise>
         );
       })}
@@ -103,9 +104,9 @@ function SetLimits() {
 }
 
 const SPENDS: [string, string][] = [
-  ['Coffee', '$4.80'],
-  ['Bus pass', '$42.00'],
-  ['Weekly shop', '$86.40'],
+  ['Coffee', 'Nrs. 4.80'],
+  ['Bus pass', 'Nrs. 42.00'],
+  ['Weekly shop', 'Nrs. 86.40'],
 ];
 
 function LogSpending() {
@@ -122,7 +123,7 @@ function LogSpending() {
       <Rise delay={56} className="space-y-3 px-2 pt-2">
         <div className="flex justify-between text-[26px]">
           <span className="font-medium text-foreground">Groceries</span>
-          <span className="text-muted-foreground tabular">${Math.round(fill * 500)} of $500</span>
+          <span className="text-muted-foreground tabular">{formatMoney(Math.round(fill * 500), { decimals: 0 })} of {formatMoney(500, { decimals: 0 })}</span>
         </div>
         <Bar value={fill} />
       </Rise>
@@ -140,13 +141,13 @@ function GetTheNudge() {
         <div className="flex justify-between text-[26px]">
           <span className="font-medium text-foreground">Transport</span>
           <span className={cn('tabular', over ? 'font-semibold text-destructive' : 'text-muted-foreground')}>
-            ${Math.round(fill * 300)} of $300
+            {formatMoney(Math.round(fill * 300), { decimals: 0 })} of {formatMoney(300, { decimals: 0 })}
           </span>
         </div>
         <Bar value={fill} over={over} />
       </Rise>
       <Rise delay={52} className={cn(ROW, 'mt-4 border-destructive/40')}>
-        <span className="font-medium text-destructive">Transport is $18 over its limit</span>
+        <span className="font-medium text-destructive">Transport is Nrs. 18 over its limit</span>
       </Rise>
       <Rise delay={70} className={ROW}>
         <span className="font-medium text-foreground">Internet bill</span>
@@ -178,7 +179,7 @@ function Review() {
       </div>
       <Rise delay={30} className={cn(ROW, 'chrome-green bg-primary text-primary-foreground')}>
         <span className="font-medium">Kept this month</span>
-        <span className="font-display text-[40px] font-bold tabular">${kept.toLocaleString('en-US')}</span>
+        <span className="font-display text-[40px] font-bold tabular">{formatMoney(kept, { decimals: 0 })}</span>
       </Rise>
     </Scene>
   );

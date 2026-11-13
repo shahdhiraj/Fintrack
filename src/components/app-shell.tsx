@@ -20,6 +20,7 @@ import {
   BarChart3,
   Menu,
   X,
+  HandCoins,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -70,6 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const featuresNav = [
     { href: '/recurring', label: 'Recurring Bills', icon: Repeat },
+    { href: '/debts', label: 'Debts & Loans', icon: HandCoins },
     { href: '/feedback', label: 'Feedback', icon: MessageSquare },
   ];
 
@@ -102,7 +104,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="p-4 border-b border-border/30 space-y-3 transition-all duration-300">
           <div className={cn("flex items-center justify-between transition-all", isCollapsed && "flex-col gap-4 justify-center")}>
             <Link href="/dashboard" className="flex items-center gap-2.5 group flex-shrink-0">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground group-hover:scale-105 transition-transform flex-shrink-0">
+              <div className="chrome-green flex h-9 w-9 items-center justify-center rounded-lg group-hover:scale-105 transition-transform flex-shrink-0">
                 <Wallet className="w-4 h-4" />
               </div>
               {!isCollapsed && (

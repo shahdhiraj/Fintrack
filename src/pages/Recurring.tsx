@@ -1,5 +1,6 @@
 
 import { useMemo, useState } from 'react';
+import { BillAvatar } from '@/components/bills/bill-avatar';
 import {
   addMonths,
   eachDayOfInterval,
@@ -120,7 +121,7 @@ export default function RecurringBillsPage() {
         </div>
         <AddRecurringBillDialog
           trigger={
-            <Button className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1.5">
+            <Button className="rounded-xl chrome-green chrome-sheen text-white text-xs font-bold gap-1.5">
               <Plus className="w-4 h-4" /> Add Bill
             </Button>
           }
@@ -183,9 +184,12 @@ export default function RecurringBillsPage() {
                   const freq = BILL_FREQUENCIES.find((f) => f.value === (bill.frequency ?? 'monthly'))?.label;
                   return (
                     <li key={bill.id} className="flex items-center gap-3 p-3 rounded-xl border border-border/40 hover:bg-muted/30 transition-colors">
-                      <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-lg flex-shrink-0" aria-hidden>
-                        {CATEGORY_ICONS[bill.category] ?? '📦'}
-                      </div>
+                      <BillAvatar
+                        imageUrl={bill.imageUrl}
+                        name={bill.name}
+                        fallback={<span>{CATEGORY_ICONS[bill.category] ?? '📦'}</span>}
+                        className="w-10 h-10 rounded-xl bg-muted text-lg"
+                      />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <p className="text-sm font-bold truncate">{bill.name}</p>

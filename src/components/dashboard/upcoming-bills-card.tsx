@@ -1,5 +1,6 @@
 
 import Link from '@/components/link';
+import { BillAvatar } from '@/components/bills/bill-avatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CalendarClock, Check } from 'lucide-react';
@@ -54,9 +55,12 @@ export function UpcomingBillsCard() {
               return (
                 <div key={bill.id} className="group flex items-center justify-between p-2.5 rounded-xl border border-border/40 hover:bg-muted/40 transition-all">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm border flex-shrink-0 ${AVATAR_STYLES[idx % AVATAR_STYLES.length]}`}>
-                      {bill.name.charAt(0).toUpperCase()}
-                    </div>
+                    <BillAvatar
+                      imageUrl={bill.imageUrl}
+                      name={bill.name}
+                      fallback={<span>{bill.name.charAt(0).toUpperCase()}</span>}
+                      className={`w-9 h-9 rounded-xl font-black text-sm border ${AVATAR_STYLES[idx % AVATAR_STYLES.length]}`}
+                    />
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-foreground truncate">{bill.name}</p>
                       <p

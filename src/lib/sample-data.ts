@@ -126,3 +126,16 @@ export const CATEGORY_COLORS: Record<Category, { bg: string; text: string; borde
   Gifts: { bg: 'bg-red-500/10 dark:bg-red-500/20', text: 'text-red-600 dark:text-red-400', border: 'border-red-500/30' },
   Other: { bg: 'bg-slate-500/10 dark:bg-slate-500/20', text: 'text-slate-600 dark:text-slate-400', border: 'border-slate-500/30' },
 };
+
+/** Demo savings goals; contributions are dated relative to today. */
+export const SAMPLE_GOALS: { name: string; emoji: string; target: number; targetInDays: number | null; contributions: { amount: number; daysAgo: number }[] }[] = [
+  { name: 'New laptop', emoji: '💻', target: 1500, targetInDays: 140, contributions: [{ amount: 200, daysAgo: 70 }, { amount: 200, daysAgo: 40 }, { amount: 150, daysAgo: 8 }] },
+  { name: 'Emergency fund', emoji: '🛟', target: 6000, targetInDays: null, contributions: [{ amount: 1000, daysAgo: 90 }, { amount: 800, daysAgo: 30 }] },
+  { name: 'Pokhara trip', emoji: '✈️', target: 600, targetInDays: 30, contributions: [{ amount: 150, daysAgo: 12 }] },
+];
+
+/** Demo debts and loans. */
+export const SAMPLE_DEBTS: { name: string; direction: 'owe' | 'lent'; amount: number; startDaysAgo: number; dueInDays: number | null; notes: string; payments: { amount: number; daysAgo: number }[] }[] = [
+  { name: 'Scooter loan', direction: 'owe', amount: 2400, startDaysAgo: 120, dueInDays: 240, notes: 'Monthly instalments', payments: [{ amount: 200, daysAgo: 90 }, { amount: 200, daysAgo: 60 }, { amount: 200, daysAgo: 30 }] },
+  { name: 'Lent to Sita', direction: 'lent', amount: 300, startDaysAgo: 25, dueInDays: 5, notes: 'For the concert tickets', payments: [{ amount: 100, daysAgo: 10 }] },
+];

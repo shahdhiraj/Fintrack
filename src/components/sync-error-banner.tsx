@@ -68,11 +68,11 @@ export function LocalStorageNotice({ features }: { features: string[] }) {
           </button>
           <div className={open ? 'flex flex-wrap items-center gap-2' : 'hidden flex-wrap items-center gap-2 md:flex'}>
             <code className="rounded-md bg-sky-500/15 px-2 py-1 font-mono font-semibold">{COMMAND}</code>
-            <Button size="sm" variant="outline" onClick={copy} className="h-7 gap-1 rounded-lg border-sky-500/40 bg-transparent text-[11px] hover:bg-sky-500/15">
+            <Button size="sm" variant="outline" onClick={copy} className="h-7 gap-1 rounded-lg border-sky-500/40 bg-gradient-to-b from-transparent to-sky-500/10 text-[11px] hover:to-sky-500/20">
               {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               {copied ? 'Copied' : 'Copy'}
             </Button>
-            <Button asChild size="sm" variant="outline" className="h-7 gap-1 rounded-lg border-sky-500/40 bg-transparent text-[11px] hover:bg-sky-500/15">
+            <Button asChild size="sm" variant="outline" className="h-7 gap-1 rounded-lg border-sky-500/40 bg-gradient-to-b from-transparent to-sky-500/10 text-[11px] hover:to-sky-500/20">
               <a href={`https://console.firebase.google.com/project/${firebaseConfig.projectId}/firestore/rules`} target="_blank" rel="noreferrer">
                 Open Firebase Rules <ExternalLink className="h-3 w-3" />
               </a>

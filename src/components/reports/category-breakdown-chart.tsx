@@ -1,5 +1,6 @@
 
 import { useMemo } from 'react';
+import { formatMoneyCompact } from '@/lib/currency';
 import {
   Bar,
   BarChart,
@@ -37,7 +38,7 @@ export function CategoryBreakdownChart({
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `$${value}`}
+              tickFormatter={(value) => formatMoneyCompact(Number(value))}
             />
             <YAxis
               type="category"

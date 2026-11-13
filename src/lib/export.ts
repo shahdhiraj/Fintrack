@@ -3,6 +3,7 @@ import { endOfMonth, format, startOfMonth } from 'date-fns';
 import type { Transaction, Wallet } from '@/lib/types';
 import type { Insight, MonthReport } from '@/lib/report-insights';
 import { toCsv } from '@/lib/finance';
+import { activeCurrency, formatMoney } from '@/lib/currency';
 
 export function download(filename: string, content: string, mime: string) {
   const url = URL.createObjectURL(new Blob([content], { type: mime }));
@@ -15,7 +16,7 @@ export function download(filename: string, content: string, mime: string) {
   URL.revokeObjectURL(url);
 }
 
-const money = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+const money = (n: number) => formatMoney(n);
 const fixed = (n: number) => n.toFixed(2);
 
 /**
@@ -34,6 +35,7 @@ export function reportFileName(r: MonthReport, kind: string, ext = '') {
 export function reportSummaryCsv(r: MonthReport, insights: Insight[]): string {
   const rows: unknown[][] = [
     ['FinTrack report', format(r.month, 'MMMM yyyy')],
+    ['Currency', `${activeCurrency().name} (${activeCurrency().symbol})`],
     [],
     ['Metric', 'Value'],
     ['Income', fixed(r.income)],

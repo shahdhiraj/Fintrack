@@ -1,4 +1,5 @@
 import { memo, useEffect, useState, type ReactNode } from 'react';
+import { formatMoney } from '@/lib/currency';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Bell, CornerDownLeft, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,9 +13,9 @@ const SURFACE = 'chrome-stroke [--chrome-fill:hsl(var(--background))] rounded-[1
 /* Each cell owns its own timer and is memoized, so the loops never re-render the page. */
 
 const QUERIES = [
-  { text: 'groceries last month', result: 'Groceries: $486.20 across 9 transactions' },
+  { text: 'groceries last month', result: 'Groceries: Nrs. 486.20 across 9 transactions' },
   { text: 'add expense', result: 'Open the quick add form' },
-  { text: 'internet bill', result: 'Internet: due in 3 days, $59.98' },
+  { text: 'internet bill', result: 'Internet: due in 3 days, Nrs. 59.98' },
 ];
 
 const SearchCell = memo(function SearchCell() {
@@ -137,7 +138,7 @@ const LimitCell = memo(function LimitCell() {
     <div className="space-y-5">
       <div className="flex items-baseline justify-between">
         <span className="text-sm font-medium">Groceries</span>
-        <span className={cn('font-display text-3xl font-bold tabular', over && 'text-destructive')}>${spent}</span>
+        <span className={cn('font-display text-3xl font-bold tabular', over && 'text-destructive')}>{formatMoney(spent, { decimals: 0 })}</span>
       </div>
       <div className="h-3 overflow-hidden rounded-full bg-muted">
         <motion.div
@@ -147,7 +148,7 @@ const LimitCell = memo(function LimitCell() {
         />
       </div>
       <p className="text-sm text-muted-foreground tabular">
-        {over ? `$${spent - LIMIT} over the $${LIMIT} limit` : `$${LIMIT - spent} left of $${LIMIT}`}
+        {over ? `${formatMoney(spent - LIMIT, { decimals: 0 })} over the ${formatMoney(LIMIT, { decimals: 0 })} limit` : `${formatMoney(LIMIT - spent, { decimals: 0 })} left of ${formatMoney(LIMIT, { decimals: 0 })}`}
       </p>
     </div>
   );
@@ -161,7 +162,7 @@ function Chips() {
       {CATEGORY_CHIPS.map(([name, limit]) => (
         <span key={name} className="flex shrink-0 items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm">
           <span className="font-medium">{name}</span>
-          <span className="text-muted-foreground tabular">${limit.toLocaleString('en-US')}</span>
+          <span className="text-muted-foreground tabular">{formatMoney(limit, { decimals: 0 })}</span>
         </span>
       ))}
     </>

@@ -1,5 +1,6 @@
 
 import { useMemo, useState } from 'react';
+import { formatMoney, formatMoneyCompact } from '@/lib/currency';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Info, ArrowUpRight, ArrowDownRight, ChevronDown, TrendingUp } from 'lucide-react';
@@ -85,7 +86,7 @@ export function EarningOverviewChart() {
       <CardContent className="space-y-4 pt-1 flex-1 flex flex-col justify-between">
         <div className="flex items-baseline gap-2.5">
           <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            ${totalEarnings.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatMoney(totalEarnings)}
           </span>
           {hasData && trend !== null && (
             <span
@@ -119,7 +120,7 @@ export function EarningOverviewChart() {
                     if (active && payload && payload.length) {
                       return (
                         <div className="bg-popover border border-border text-popover-foreground px-2.5 py-1.5 rounded-lg text-xs font-bold shadow-md">
-                          ${Number(payload[0].value).toLocaleString()}
+                          {formatMoney(Number(payload[0].value))}
                         </div>
                       );
                     }

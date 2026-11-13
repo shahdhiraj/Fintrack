@@ -75,10 +75,10 @@ function LimitDemo() {
         <span className="text-sm font-medium">Groceries</span>
         <span className="relative h-9 w-40 text-right font-display text-3xl font-bold tabular">
           <motion.span className="absolute right-0" variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: -10 } }} transition={SPRING}>
-            $320
+            Nrs. 320
           </motion.span>
           <motion.span className="absolute right-0" variants={{ rest: { opacity: 0, y: 10 }, hover: { opacity: 1, y: 0 } }} transition={SPRING}>
-            $480
+            Nrs. 480
           </motion.span>
         </span>
       </div>
@@ -91,10 +91,10 @@ function LimitDemo() {
       </div>
       <div className="relative h-5 text-sm tabular">
         <motion.p className="absolute text-muted-foreground" variants={{ rest: { opacity: 1 }, hover: { opacity: 0 } }}>
-          $180 left of $500
+          Nrs. 180 left of Nrs. 500
         </motion.p>
         <motion.p className="absolute font-medium text-primary" variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}>
-          Only $20 left. Time to slow down.
+          Only Nrs. 20 left. Time to slow down.
         </motion.p>
       </div>
     </div>
@@ -128,9 +128,9 @@ function NoBankDemo() {
 }
 
 const WALLETS: [string, string][] = [
-  ['Main Checking', '$4,280'],
-  ['Savings', '$16,450'],
-  ['Cash', '$120'],
+  ['Main Checking', 'Nrs. 4,280'],
+  ['Savings', 'Nrs. 16,450'],
+  ['Cash', 'Nrs. 120'],
 ];
 
 function TotalDemo() {
@@ -153,7 +153,7 @@ function TotalDemo() {
         transition={SPRING}
       >
         <span className="text-sm font-semibold">Total</span>
-        <span className="font-display text-3xl font-bold tabular text-primary">$20,850</span>
+        <span className="font-display text-3xl font-bold tabular text-primary">Nrs. 20,850</span>
       </motion.div>
     </div>
   );
