@@ -1,0 +1,18 @@
+# Build artifacts & packages
+release
+dist
+build
+.next
+node_modules
+
+# Electron desktop app
+electron
+
+# Agent/IDE directories
+.agents
+.claude
+.git
+
+# Logs & temporary files
+*.log
+scratch
